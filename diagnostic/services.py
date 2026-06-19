@@ -1,200 +1,245 @@
 from projects.models import ProfileLog, ProjectProfile
+from criteria_nested import get_stage_criteria, is_leaf, STAGE_ORDER, BLOCKER_DOMAINS, get_stage_index
+from calculations import _get_profile_value, _to_float, _is_truthy
+from datetime import datetime, timezone
+
+
+def _rollup(results, rule):
+    # "all": any False → False | no False + any None → None | all True → True
+    # "any": any True  → True  | all False → False          | otherwise → None
+    if rule == "all":
+        if any(r is False for r in results):  return False
+        if any(r is None  for r in results):  return None
+        return True
+    if rule == "any":
+        if any(r is True  for r in results):  return True
+        if all(r is False for r in results):  return False
+        return None
+    return None
+
+
+def _evaluate_leaf(leaf, profile):
+    rule  = leaf.get("rule")
+
+    # field_group: check multiple fields with the leaf's own rule
+    if "field_group" in leaf:
+        results = [_is_truthy(_get_profile_value(profile, f)) for f in leaf["field_group"]]
+        return _rollup(results, rule)
+
+    field = leaf.get("field")
+    value = _get_profile_value(profile, field)
+
+    if rule == "truthy":
+        return _is_truthy(value)
+
+    if rule == "enum_in":
+        if value is None: return None
+        return value in leaf.get("allowed_values", [])
+
+    if rule == "min_value":
+        num = _to_float(value)
+        if num is None: return None
+        return num >= leaf["min_value"]
+
+    if rule == "contains":
+        if value is None: return None
+        target = leaf.get("value")
+        return target in value   # works for list or str
+
+    return None
+
+
+def _evaluate_node(node, profile):
+    if is_leaf(node):
+        return _evaluate_leaf(node, profile)
+
+    child_results = [_evaluate_node(child, profile) for child in node["sub_criteria"]]
+    return _rollup(child_results, node.get("rule", "all"))
+
 
 def evaluate_criteria(stage, profile):
-    '''
-    Purpose:
-        Evaluate all criteria required for a specific maturity stage.
+    results = []
+    for node in get_stage_criteria(stage):
+        results.append({
+            "criterion": node["criterion"],
+            "value":     _evaluate_node(node, profile),
+            "rule":      node.get("rule"),
+            "domain":    node.get("domain"),
+        })
+    return results
 
-    Input:
-        stage   -> Target stage to evaluate.
-        profile -> ProjectProfile instance.
 
-    Output:
-        {
-            "stage": stage,
-            "results": [
-                {
-                    "criterion": str,
-                    "value": True | False | None,
-                    "domain": str
-                }
-            ]
-        }
+def stage_classification(profile):
+    assigned_stage = "IDEATION"
+    evidence = {}
+    stopped_at = None
 
-    Responsibilities:
-        - Check only one stage.
-        - Evaluate each criterion independently.
-        - Return evidence used for classification.
-        - Never determine the final project stage.
-        - Never compute scores.
-    '''
-    pass
+    for stage in STAGE_ORDER[1:]:
+        stage_result = evaluate_criteria(stage, profile)
+        evidence[stage] = stage_result
 
+        if stage_result and all(item["value"] is True for item in stage_result):
+            assigned_stage = stage
+        else:
+            stopped_at = stage
+            break
+
+    return {
+        "assigned_stage": assigned_stage,
+        "evidence":       evidence,
+        "stopped_at":     stopped_at,
+    }
 
 
 def extract_failed_criteria(evidence):
-    '''
-    Purpose:
-        Collect all criteria that failed or were missing during stage evaluation.
+    failed = []
+    for stage, criteria in evidence.items():
+        for item in criteria:
+            if item["value"] is not True:
+                failed.append({
+                    "criterion": item["criterion"],
+                    "value":     item["value"],   # False = confirmed gap | None = data missing
+                    "stage":     stage,
+                    "domain":    item.get("domain"),
+                })
+    return failed
 
-    Input:
-        evidence -> stage-by-stage evaluation results.
-
-    Output:
-        [
-            {
-                "criterion": str,
-                "value": True | False | None,
-                "domain": str,
-                "stage": str
-            }
-        ]
-
-    Responsibilities:
-        - Scan all evaluated stages.
-        - Keep only failed or missing criteria.
-        - Preserve stage and domain information.
-        - Feed blocker analysis.
-    '''
 
 def identify_blockers(failed_criteria):
-    '''
-    Purpose:
-        Group failed or missing criteria into blocker domains.
+    # Group by domain
+    groups = {domain: [] for domain in BLOCKER_DOMAINS}
+    for item in failed_criteria:
+        domain = item.get("domain")
+        if domain in groups:
+            groups[domain].append(item)
 
-    Input:
-        failed_criteria -> list of failed or missing criteria.
+    # Rank active domains by: earliest stage first, then count, then severity
+    # False (confirmed gap) = severity 2 | None (data missing) = severity 1
+    def _rank_key(domain):
+        items = groups[domain]
+        earliest = min((get_stage_index(i["stage"]) or 99) for i in items)
+        count    = len(items)
+        severity = sum(2 if i["value"] is False else 1 for i in items)
+        return (earliest, -count, -severity)
 
-    Output:
-        {
-            "financier": [...],
-            "légal": [...],
-            "marché": [...],
-            "organisationnel": [...],
-            "technique": [...]
-        }
+    ranked_domains = sorted(
+        [d for d in BLOCKER_DOMAINS if groups[d]],
+        key=_rank_key,
+    )
 
-    Responsibilities:
-        - Group criteria by domain.
-        - Rank the strongest blocker domains.
-        - Support roadmap retrieval.
-    '''
-
+    return {
+        "by_domain":      groups,
+        "ranked_domains": ranked_domains,
+        "total":          len(failed_criteria),
+    }
 
 
 def compute_confidence(evidence):
-    '''
-    Purpose:
-        Estimate how reliable the diagnosis is.
+    total      = 0
+    none_count = 0
 
-    Input:
-        evidence -> full stage evaluation output.
+    for criteria in evidence.values():
+        for item in criteria:
+            total += 1
+            if item["value"] is None:
+                none_count += 1
 
-    Output:
-        float
+    if total == 0:
+        return {"level": "low", "score": 0.0, "none_count": 0, "total_evaluated": 0}
 
-    Responsibilities:
-        - Increase confidence when more criteria are confirmed.
-        - Decrease confidence when many criteria are missing.
-        - Return a value between 0 and 1.
-    '''
+    score = (total - none_count) / total
+
+    if score >= 0.8:
+        level = "high"
+    elif score >= 0.5:
+        level = "medium"
+    else:
+        level = "low"
+
+    return {
+        "level":           level,
+        "score":           round(score, 4),
+        "none_count":      none_count,
+        "total_evaluated": total,
+    }
+
 
 def detect_perception_gap(profile, assigned_stage):
-    '''
-    Purpose:
-        Compare self-assessed stage with diagnosed stage.
+    self_assessed = _get_profile_value(profile, "self_assessed_stage")
 
-    Input:
-        profile        -> ProjectProfile instance.
-        assigned_stage -> final diagnosed stage.
+    # diagnosed_stage is a stage name → convert to 1-based number
+    diagnosed_number = (get_stage_index(assigned_stage) or 0) + 1
 
-    Output:
-        {
-            "gap_size": int,
-            "self_assessed_stage": int,
-            "diagnosed_stage": int,
-            "divergence": bool
+    # self_assessed_stage may be stored as int (1–6) or stage name string
+    if isinstance(self_assessed, int):
+        self_number = self_assessed
+    elif isinstance(self_assessed, str):
+        idx = get_stage_index(self_assessed)
+        self_number = None if idx is None else idx + 1
+    else:
+        self_number = None
+
+    if self_number is None:
+        return {
+            "self_assessed_stage": self_assessed,
+            "diagnosed_stage":     assigned_stage,
+            "gap_size":            None,
+            "divergence":          None,
+            "gap_direction":       None,
         }
 
-    Responsibilities:
-        - Compare founder belief to system diagnosis.
-        - Measure how far apart the two stages are.
-        - Flag divergence clearly.
-    '''
+    gap = self_number - diagnosed_number
 
-def build_diagnostic_metadata(profile, assigned_stage, evidence, blockers, confidence, gap):
-    '''
-    Purpose:
-        Assemble the final diagnostic payload.
+    return {
+        "self_assessed_stage": self_number,
+        "diagnosed_stage":     diagnosed_number,
+        "gap_size":            abs(gap),
+        "divergence":          gap != 0,
+        "gap_direction":       "overestimate" if gap > 0 else "underestimate" if gap < 0 else "aligned",
+    }
 
-    Input:
-        profile, assigned_stage, evidence, blockers, confidence, gap
-
-    Output:
-        dict
-
-    Responsibilities:
-        - Package all diagnostic results into one metadata object.
-        - Keep everything traceable.
-        - Prepare output for ProfileLog storage.
-    '''
 
 def save_diagnostic_log(profile, metadata):
-    '''
-    Purpose:
-        Store the diagnostic result in ProfileLog.
-
-    Input:
-        profile   -> ProjectProfile instance.
-        metadata  -> diagnostic output dictionary.
-
-    Output:
-        ProfileLog instance
-
-    Responsibilities:
-        - Append the diagnostic result.
-        - Do not overwrite old logs.
-        - Preserve traceability and history.
-    '''
-
-
-
+    return ProfileLog.objects.create(
+        project=profile,
+        author="diagnostic_engine",
+        metadata=metadata,
+    )
 
 
 def diagnose_project(profile):
-    '''
-    Purpose:
-        Generate the final diagnostic assessment.
+    # 1 — classify
+    classification = stage_classification(profile)
+    assigned_stage = classification["assigned_stage"]
+    evidence       = classification["evidence"]
 
-    Input:
-        profile -> ProjectProfile instance.
+    # 2 — extract failures and build blocker profile
+    failed   = extract_failed_criteria(evidence)
+    blockers = identify_blockers(failed)
 
-    Output:
-        {
-            "author": "diagnostic",
-            "metadata": {
-                "assigned_stage": str,
-                "confidence": float,
-                "perception_gap": int,
-                "blockers": list,
-                "evidence": dict
-            }
-        }
+    # 3 — confidence
+    confidence = compute_confidence(evidence)
 
-    Responsibilities:
-    should call the whole chain
-        - Run stage classification.
-        - Compare diagnosed stage with self-assessed stage.
-        - Detect perception-reality gaps.
-        - Identify blocker domains.
-        - Estimate confidence level.
-        - Build a traceable diagnostic result.
-        - Produce an object ready for ProfileLog storage.
-    '''
+    # 4 — perception gap
+    gap = detect_perception_gap(profile, assigned_stage)
 
+    # 5 — assemble and persist
+    metadata = {
+        "assigned_stage":       assigned_stage,
+        "assigned_stage_index": (get_stage_index(assigned_stage) or 0) + 1,
+        "stopped_at":           classification["stopped_at"],
+        "evidence":             evidence,
+        "failed_criteria":      failed,
+        "blockers":             blockers,
+        "confidence":           confidence,
+        "perception_gap":       gap,
+        "diagnosed_at":         datetime.now(timezone.utc).isoformat(),
+    }
 
+    log = save_diagnostic_log(profile, metadata)
 
-    
-
-
-    
+    return {
+        "author":   "diagnostic_engine",
+        "log_id":   log.id,
+        "metadata": metadata,
+    }
