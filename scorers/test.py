@@ -19,19 +19,22 @@ for mod in ["django", "django.db", "django.db.models", "projects", "projects.mod
     sys.modules[mod] = MagicMock()
 
 # ── imports ───────────────────────────────────────────────────────────────
-from scorers.scoring_utils import score_leaf, rollup, build_result
-from scorers.market        import score_market
-from scorers.commercial    import score_commercial
-from scorers.innovation    import score_innovation
-from scorers.scalability   import score_scalability
-from scorers.green         import score_green
-from diagnostic.scoring    import score_project
-from diagnostic.metrics    import derive_all_metrics
+from scorers.scoring_utils   import score_leaf, rollup, build_result
+from scorers.market          import score_market
+from scorers.commercial      import score_commercial
+from scorers.innovation      import score_innovation
+from scorers.scalability     import score_scalability
+from scorers.green           import score_green
+from diagnostic.scoring      import score_project
+from diagnostic.metrics      import derive_all_metrics
+from diagnostic.services     import stage_classification, detect_perception_gap
 
 
 # ── fixtures ──────────────────────────────────────────────────────────────
 
 STRONG_PROFILE = {
+    # stage self-assessment
+    "self_assessed_stage":        "STRUCTURATION",
     # economics
     "selling_price":              100.0,
     "unit_cost":                  40.0,
@@ -70,6 +73,7 @@ STRONG_PROFILE = {
 }
 
 WEAK_PROFILE = {
+    "self_assessed_stage":         "FUNDRAISING",
     "selling_price":               30.0,
     "unit_cost":                   40.0,   # selling below cost → negative margin
     "monthly_revenue":             500.0,
@@ -573,10 +577,42 @@ def print_results():
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
     for label, profile in [("STRONG", STRONG_PROFILE), ("WEAK", WEAK_PROFILE)]:
-        print_section(f"SCORE PROJECT — {label} profile")
+        print_section(f"SCORE PROJECT -- {label} profile")
         result = score_project(profile)
         m = result["metrics"]
 
+        # ── Stage diagnosis ───────────────────────────────────────────────
+        cl  = stage_classification(profile)
+        gap = detect_perception_gap(profile, cl["assigned_stage"])
+
+        declared  = gap["self_assessed_stage"]   # int or None
+        diagnosed = gap["diagnosed_stage"]        # int or None
+
+        print(f"\n  STAGE DIAGNOSIS")
+        print(f"    Declared by user   : {profile.get('self_assessed_stage', 'N/A')!r}  (position {declared})")
+        print(f"    Concluded by engine: {cl['assigned_stage']}  (position {diagnosed})")
+        if gap["divergence"] is None:
+            print(f"    Perception gap     : unknown  (no self-assessment provided)")
+        elif gap["divergence"]:
+            direction = "over-estimated" if declared > diagnosed else "under-estimated"
+            print(f"    Perception gap     : {gap['gap_size']} stage(s) -- user {direction}")
+        else:
+            print(f"    Perception gap     : none  (accurate self-assessment)")
+        if cl["stopped_at"]:
+            print(f"    Stopped at         : {cl['stopped_at']}")
+
+        print(f"\n  STAGE EVIDENCE")
+        for stage, criteria_list in cl["evidence"].items():
+            all_pass = bool(criteria_list) and all(item["value"] is True for item in criteria_list)
+            marker = "+" if all_pass else "x"
+            print(f"    [{marker}] {stage}")
+            for item in criteria_list:
+                v   = item["value"]
+                sym = "+" if v is True else ("?" if v is None else "x")
+                domain = f"  [{item['domain']}]" if item.get("domain") else ""
+                print(f"          [{sym}] {item['criterion']:<40}  {str(v):<5}{domain}")
+
+        # ── Metrics bundle ────────────────────────────────────────────────
         print(f"\n  METRICS BUNDLE")
         print(f"    gross_margin_ratio      : {m['gross_margin_ratio']}")
         print(f"    breakeven_months        : {m['breakeven_months']}")
@@ -585,6 +621,7 @@ def print_results():
         print(f"    credit_gap_exists       : {m['credit_gap_exists']}")
         print(f"    van_5_years             : {m['van_5_years']} DT")
 
+        # ── Scoring engines ───────────────────────────────────────────────
         for dim in ("market", "commercial", "innovation", "scalability", "green"):
             eng = result["scores"][dim]
             met = "+" if eng["floor_met"] else ("x" if eng["floor_met"] is False else "?")
@@ -593,7 +630,8 @@ def print_results():
             for lf in eng["leaves"]:
                 s = f"{lf['score']:>4.1f}" if lf["score"] is not None else "None"
                 print(f"        {s}  (w={lf['weight']:.2f})  {lf['criterion']}")
-                print(f"               {lf['justification']}")
+                print(f"             {lf['justification']}")
+                print(f"             evidence: {lf['evidence']}")
     print()
 
 
