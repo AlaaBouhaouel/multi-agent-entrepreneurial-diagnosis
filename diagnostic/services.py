@@ -224,9 +224,10 @@ def diagnose_project(profile):
     gap = detect_perception_gap(profile, assigned_stage)
 
     # 5 — assemble and persist
+    assigned_stage_index = (get_stage_index(assigned_stage) or 0) + 1
     metadata = {
         "assigned_stage":       assigned_stage,
-        "assigned_stage_index": (get_stage_index(assigned_stage) or 0) + 1,
+        "assigned_stage_index": assigned_stage_index,
         "stopped_at":           classification["stopped_at"],
         "evidence":             evidence,
         "failed_criteria":      failed,
@@ -236,6 +237,8 @@ def diagnose_project(profile):
         "diagnosed_at":         datetime.now(timezone.utc).isoformat(),
     }
 
+    profile.current_stage = assigned_stage_index
+    profile.save(update_fields=["current_stage"])
     log = save_diagnostic_log(profile, metadata)
 
     return {

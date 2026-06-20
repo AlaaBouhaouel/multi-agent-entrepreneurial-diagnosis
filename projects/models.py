@@ -48,7 +48,7 @@ class ProfileLog(models.Model):
     metadata = models.JSONField(default=dict, blank=True)
 
     def __str__(self):
-        return f"{self.project_name} - {self.author}"
+        return f"{self.project.project_name} - {self.author}"
     class Meta:
         ordering = ['-timestamp'] #So when you do NewsArticle.objects.all() in a view, you automatically get them newest-to-oldest
 
