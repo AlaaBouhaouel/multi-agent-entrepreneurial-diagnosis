@@ -1,0 +1,219 @@
+
+--------------------------------------------------------------
+  SCORE PROJECT -- STRONG profile
+--------------------------------------------------------------
+
+  STAGE DIAGNOSIS
+    Declared by user   : 'STRUCTURATION'  (position 3)
+    Concluded by engine: IDEATION  (position 1)
+    Perception gap     : 2 stage(s) -- user over-estimated
+    Stopped at         : MARKET_VALIDATION
+
+  STAGE EVIDENCE
+    [x] MARKET_VALIDATION
+          [?] market_knowledge                          None   [marché]
+          [?] founder_readiness                         None   [organisationnel]
+          [?] customers_validation                      None   [marché]
+
+  METRICS BUNDLE
+    gross_margin_ratio      : 0.6
+    breakeven_months        : 24
+    opex_months_covered     : 6.0
+    credit_eligibility_path : commercial_bank
+    credit_gap_exists       : True
+    van_5_years             : 116752.92 DT
+
+  [+] MARKET        score=8.55  floor=5.0
+        10.0  (w=0.30)  gross_margin_viability
+             gross_margin_ratio 0.6 → score 10.0
+             evidence: {'gross_margin_ratio': 0.6, 'gross_margin_percentage': 60.0}
+         7.0  (w=0.25)  breakeven_reachability
+             breakeven_months 24 → score 7.0
+             evidence: {'breakeven_months': 24, 'breakeven_year': 2}
+        10.0  (w=0.20)  opex_runway
+             opex_months_covered 6.0 → score 10.0
+             evidence: {'opex_months_covered': 6.0}
+        10.0  (w=0.15)  credit_access
+             path=commercial_bank, needs_credit=True → score 10.0
+             evidence: {'credit_eligibility_path': 'commercial_bank', 'credit_eligibility_reason': 'has_guarantee', 'needs_credit': True}
+         3.0  (w=0.10)  investment_gap_covered
+             gap_exists=True, planned_covers=False → score 3.0
+             evidence: {'credit_gap_exists': True, 'planned_credit_covers_gap': False, 'minimum_credit_needed': 26600.0}
+
+  [+] COMMERCIAL    score=7.95  floor=4.0
+        10.0  (w=0.30)  pricing_coherence
+             gross_margin_ratio 0.6 → score 10.0
+             evidence: {'gross_margin_ratio': 0.6, 'gross_margin_percentage': 60.0}
+         7.0  (w=0.30)  local_price_positioning
+             price_vs_local_market 1.1111 → score 7.0
+             evidence: {'price_vs_local_market': 1.1111}
+         8.0  (w=0.20)  foreign_price_positioning
+             price_vs_foreign_market 0.8333 → score 8.0
+             evidence: {'price_vs_foreign_market': 0.8333}
+         5.0  (w=0.15)  volume_vs_breakeven
+             expected/breakeven ratio 1.3635 → score 5.0
+             evidence: {'expected_monthly_units': 50.0, 'breakeven_units': 36.67, 'ratio': 1.3635}
+        10.0  (w=0.05)  management_identified
+             gerant=set → score 10.0
+             evidence: {'gerant': True}
+
+  [+] INNOVATION    score=9.20  floor=4.0
+        10.0  (w=0.35)  idea_novelty
+             idea_is_new=True → score 10.0
+             evidence: {'idea_is_new': True}
+        10.0  (w=0.30)  market_research_depth
+             foreign_model_studied=True → score 10.0
+             evidence: {'foreign_model_studied': True}
+         8.0  (w=0.25)  differentiation_strength
+             differentiation_claimed=True → score 8.0
+             evidence: {'differentiation_claimed': True}
+         7.0  (w=0.10)  price_advantage_vs_foreign
+             price_vs_foreign_market 0.8333 → score 7.0
+             evidence: {'price_vs_foreign_market': 0.8333}
+
+  [+] SCALABILITY   score=7.90  floor=4.0
+        10.0  (w=0.30)  unit_economics_at_scale
+             gross_margin_ratio 0.6 → score 10.0 (facet: reinvestment room at volume)
+             evidence: {'gross_margin_ratio': 0.6}
+         4.0  (w=0.25)  volume_headroom
+             expected/breakeven ratio 1.3635 → score 4.0
+             evidence: {'expected_monthly_units': 50.0, 'breakeven_units': 36.67, 'ratio': 1.3635}
+        10.0  (w=0.25)  team_depth
+             core_complete=True, associes=2 → score 10.0
+             evidence: {'team_core_complete': True, 'associes_count': 2}
+         7.0  (w=0.20)  fixed_cost_leverage
+             fixed/revenue ratio 0.44 → score 7.0
+             evidence: {'monthly_fixed_costs': 2200.0, 'fixed_to_revenue_ratio': 0.44}
+
+  [+] GREEN         score=10.00  floor=4.0
+        10.0  (w=0.20)  impact_declared
+             impact_type=économie_énergie, description=set → score 10.0
+             evidence: {'environmental_impact_type': 'économie_énergie', 'environmental_impact_description': True}
+        10.0  (w=0.15)  waste_reduction
+             waste_reduction_measures=described → score 10.0
+             evidence: {'waste_reduction_measures': True}
+        10.0  (w=0.15)  energy_efficiency
+             energy_reduction_measures=described → score 10.0
+             evidence: {'energy_reduction_measures': True}
+        None  (w=0.10)  water_conservation
+             water_reduction_measures=missing → score None
+             evidence: {'water_reduction_measures': False}
+        10.0  (w=0.15)  resource_efficiency
+             resource_efficiency_measures=described → score 10.0
+             evidence: {'resource_efficiency_measures': True}
+        10.0  (w=0.10)  circular_economy
+             circular_practices_described=set → score 10.0
+             evidence: {'circular_practices_described': True}
+        10.0  (w=0.15)  sdg_commitment
+             sdg_alignment=set, evidence=set → score 10.0
+             evidence: {'sdg_alignment': ['7', '12'], 'sdg_evidence': True}
+
+--------------------------------------------------------------
+  SCORE PROJECT -- WEAK profile
+--------------------------------------------------------------
+
+  STAGE DIAGNOSIS
+    Declared by user   : 'FUNDRAISING'  (position 4)
+    Concluded by engine: IDEATION  (position 1)
+    Perception gap     : 3 stage(s) -- user over-estimated
+    Stopped at         : MARKET_VALIDATION
+
+  STAGE EVIDENCE
+    [x] MARKET_VALIDATION
+          [x] market_knowledge                          False  [marché]
+          [?] founder_readiness                         None   [organisationnel]
+          [?] customers_validation                      None   [marché]
+
+  METRICS BUNDLE
+    gross_margin_ratio      : -0.3333
+    breakeven_months        : None
+    opex_months_covered     : None
+    credit_eligibility_path : none
+    credit_gap_exists       : None
+    van_5_years             : 19333.02 DT
+
+  [x] MARKET        score=0.00  floor=5.0
+         0.0  (w=0.30)  gross_margin_viability
+             gross_margin_ratio -0.3333 → score 0.0
+             evidence: {'gross_margin_ratio': -0.3333, 'gross_margin_percentage': -33.33}
+        None  (w=0.25)  breakeven_reachability
+             breakeven_months None → score None
+             evidence: {'breakeven_months': None, 'breakeven_year': None}
+        None  (w=0.20)  opex_runway
+             opex_months_covered None → score None
+             evidence: {'opex_months_covered': None}
+         0.0  (w=0.15)  credit_access
+             path=none, needs_credit=True → score 0.0
+             evidence: {'credit_eligibility_path': 'none', 'credit_eligibility_reason': 'credit_blocked_by_bct_or_unpaid_debts', 'needs_credit': True}
+        None  (w=0.10)  investment_gap_covered
+             gap_exists=None, planned_covers=None → score None
+             evidence: {'credit_gap_exists': None, 'planned_credit_covers_gap': None, 'minimum_credit_needed': None}
+
+  [x] COMMERCIAL    score=0.00  floor=4.0
+         0.0  (w=0.30)  pricing_coherence
+             gross_margin_ratio -0.3333 → score 0.0
+             evidence: {'gross_margin_ratio': -0.3333, 'gross_margin_percentage': -33.33}
+        None  (w=0.30)  local_price_positioning
+             price_vs_local_market None → score None
+             evidence: {'price_vs_local_market': None}
+        None  (w=0.20)  foreign_price_positioning
+             price_vs_foreign_market None → score None
+             evidence: {'price_vs_foreign_market': None}
+        None  (w=0.15)  volume_vs_breakeven
+             expected/breakeven ratio None → score None
+             evidence: {'expected_monthly_units': None, 'breakeven_units': None, 'ratio': None}
+         0.0  (w=0.05)  management_identified
+             gerant=missing → score 0.0
+             evidence: {'gerant': False}
+
+  [x] INNOVATION    score=2.33  floor=4.0
+         4.0  (w=0.35)  idea_novelty
+             idea_is_new=False → score 4.0
+             evidence: {'idea_is_new': False}
+        None  (w=0.30)  market_research_depth
+             foreign_model_studied=None → score None
+             evidence: {'foreign_model_studied': None}
+         0.0  (w=0.25)  differentiation_strength
+             differentiation_claimed=False → score 0.0
+             evidence: {'differentiation_claimed': False}
+        None  (w=0.10)  price_advantage_vs_foreign
+             price_vs_foreign_market None → score None
+             evidence: {'price_vs_foreign_market': None}
+
+  [x] SCALABILITY   score=0.00  floor=4.0
+         0.0  (w=0.30)  unit_economics_at_scale
+             gross_margin_ratio -0.3333 → score 0.0 (facet: reinvestment room at volume)
+             evidence: {'gross_margin_ratio': -0.3333}
+        None  (w=0.25)  volume_headroom
+             expected/breakeven ratio None → score None
+             evidence: {'expected_monthly_units': None, 'breakeven_units': None, 'ratio': None}
+        None  (w=0.25)  team_depth
+             core_complete=None, associes=0 → score None
+             evidence: {'team_core_complete': None, 'associes_count': 0}
+        None  (w=0.20)  fixed_cost_leverage
+             fixed/revenue ratio None → score None
+             evidence: {'monthly_fixed_costs': None, 'fixed_to_revenue_ratio': None}
+
+  [?] GREEN         score=None  floor=4.0
+        None  (w=0.20)  impact_declared
+             impact_type=None, description=missing → score None
+             evidence: {'environmental_impact_type': None, 'environmental_impact_description': False}
+        None  (w=0.15)  waste_reduction
+             waste_reduction_measures=missing → score None
+             evidence: {'waste_reduction_measures': False}
+        None  (w=0.15)  energy_efficiency
+             energy_reduction_measures=missing → score None
+             evidence: {'energy_reduction_measures': False}
+        None  (w=0.10)  water_conservation
+             water_reduction_measures=missing → score None
+             evidence: {'water_reduction_measures': False}
+        None  (w=0.15)  resource_efficiency
+             resource_efficiency_measures=missing → score None
+             evidence: {'resource_efficiency_measures': False}
+        None  (w=0.10)  circular_economy
+             circular_practices_described=missing → score None
+             evidence: {'circular_practices_described': False}
+        None  (w=0.15)  sdg_commitment
+             sdg_alignment=empty, evidence=missing → score None
+             evidence: {'sdg_alignment': None, 'sdg_evidence': False}
+

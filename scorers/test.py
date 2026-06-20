@@ -5,9 +5,11 @@ Covers: scoring_utils, market, commercial, innovation, scalability, green,
         and score_project() end-to-end.
 """
 
+import io
 import os
 import sys
 import unittest
+from datetime import datetime, timezone
 from unittest.mock import MagicMock
 
 # ── path setup ────────────────────────────────────────────────────────────
@@ -636,5 +638,30 @@ def print_results():
 
 
 if __name__ == "__main__":
+    # Capture print_results() output, write to stdout AND a timestamped log file
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
+
+    buf = io.StringIO()
+    _real_stdout = sys.stdout
+
+    class _Tee:
+        def write(self, s):
+            _real_stdout.write(s)
+            buf.write(s)
+        def flush(self):
+            _real_stdout.flush()
+
+    sys.stdout = _Tee()
     print_results()
+    sys.stdout = _real_stdout
+
+    logs_dir = os.path.join(ROOT, "logs")
+    os.makedirs(logs_dir, exist_ok=True)
+    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    log_path = os.path.join(logs_dir, f"score_test_{ts}.log")
+    with open(log_path, "w", encoding="utf-8") as f:
+        f.write(buf.getvalue())
+    print(f"  log saved -> {log_path}\n")
+
     unittest.main(verbosity=2)
