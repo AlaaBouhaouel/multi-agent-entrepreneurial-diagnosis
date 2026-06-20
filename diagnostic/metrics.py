@@ -13,7 +13,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any, Dict, List
 
-from calculations import (
+from diagnostic.calculations import (
     compute_validation_strength,
     detect_structural_coherence,
     _get_profile_value,
