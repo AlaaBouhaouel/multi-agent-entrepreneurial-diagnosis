@@ -23,7 +23,9 @@ Blocks are grouped by the stage during which they fire.
 The intake engine calls get_routing_block(stage) to retrieve all non-classifier
 questions relevant after the stage's classifier criteria are collected.
 
-Blocks defined here
+Blocks defined here:
+
+DIAGNOSTIC ENGINE:
 -------------------
 MARKET_VALIDATION:
   UNIT_ECONOMICS_BLOCK    — selling_price, unit_cost, expected_monthly_units,
@@ -40,6 +42,8 @@ STRUCTURATION:
   LEGAL_BLOCK (Part B.2)  — legal_form_type, associes, gerant, needs_premises,
                             has_premises.
 
+
+
 Note: fields that are `computed` (gross_margin_percentage, van_5_years, etc.)
 are never asked directly — they are derived by calculations.py from the `asked`
 fields collected here.
@@ -51,6 +55,127 @@ from typing import Any, Dict, List, Optional
 
 
 IntakeQuestion = Dict[str, Any]
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# IDEATION — green / environmental block
+# Fires after ideation classifier questions.
+# All fields are nullable — answers feed score_green only, not the classifier.
+# ─────────────────────────────────────────────────────────────────────────────
+
+GREEN_BLOCK: List[IntakeQuestion] = [
+    {
+        "field":              "environmental_impact_type",
+        "label_fr":           "Type d'impact environnemental",
+        "field_type":         "enum",
+        "allowed_values":     ["réduction_pollution", "économie_énergie", "gestion_déchets",
+                               "biodiversité", "économie_eau", "autre", "aucun"],
+        "consumers":          ["scoring:green"],
+        "computed_by":        [],
+        "intake_question_fr": "Quel type d'impact environnemental positif votre projet génère-t-il ?",
+        "intake_condition":   None,
+        "nullable":           True,
+    },
+    {
+        "field":              "environmental_impact_description",
+        "label_fr":           "Description de l'impact environnemental",
+        "field_type":         "string",
+        "consumers":          ["scoring:green"],
+        "computed_by":        [],
+        "intake_question_fr": "Décrivez en quelques phrases l'impact environnemental positif de votre projet.",
+        "intake_condition": {
+            "field":       "environmental_impact_type",
+            "operator":    "not_in",
+            "value":       ["aucun"],
+            "description": "Ask only if environmental_impact_type is not 'aucun'.",
+        },
+        "nullable":           True,
+    },
+    {
+        "field":              "waste_reduction_measures",
+        "label_fr":           "Mesures de réduction des déchets",
+        "field_type":         "string",
+        "consumers":          ["scoring:green"],
+        "computed_by":        [],
+        "intake_question_fr": "Quelles mesures prenez-vous pour réduire les déchets générés par votre activité ?",
+        "intake_condition":   None,
+        "nullable":           True,
+    },
+    {
+        "field":              "energy_reduction_measures",
+        "label_fr":           "Mesures d'efficacité énergétique",
+        "field_type":         "string",
+        "consumers":          ["scoring:green"],
+        "computed_by":        [],
+        "intake_question_fr": "Comment réduisez-vous la consommation d'énergie dans votre projet ?",
+        "intake_condition":   None,
+        "nullable":           True,
+    },
+    {
+        "field":              "water_reduction_measures",
+        "label_fr":           "Mesures de réduction de la consommation d'eau",
+        "field_type":         "string",
+        "consumers":          ["scoring:green"],
+        "computed_by":        [],
+        "intake_question_fr": "Quelles mesures avez-vous prises pour réduire la consommation d'eau ?",
+        "intake_condition":   None,
+        "nullable":           True,
+    },
+    {
+        "field":              "resource_efficiency_measures",
+        "label_fr":           "Mesures d'efficacité des ressources",
+        "field_type":         "string",
+        "consumers":          ["scoring:green"],
+        "computed_by":        [],
+        "intake_question_fr": "Comment optimisez-vous l'utilisation des matières premières et ressources ?",
+        "intake_condition":   None,
+        "nullable":           True,
+    },
+    {
+        "field":              "circular_practices_described",
+        "label_fr":           "Pratiques d'économie circulaire",
+        "field_type":         "string",
+        "consumers":          ["scoring:green"],
+        "computed_by":        [],
+        "intake_question_fr": (
+            "Décrivez vos pratiques d'économie circulaire "
+            "(recyclage, réutilisation, valorisation des déchets, etc.)."
+        ),
+        "intake_condition":   None,
+        "nullable":           True,
+    },
+    {
+        "field":              "sdg_alignment",
+        "label_fr":           "Alignement avec les ODD",
+        "field_type":         "list",
+        "allowed_values":     [str(i) for i in range(1, 18)],
+        "consumers":          ["scoring:green"],
+        "computed_by":        [],
+        "intake_question_fr": (
+            "Votre projet contribue-t-il aux Objectifs de Développement Durable (ODD) de l'ONU ? "
+            "Si oui, lesquels ? (ex : ODD 7, ODD 12, ODD 13)"
+        ),
+        "intake_condition":   None,
+        "nullable":           True,
+    },
+    {
+        "field":              "sdg_evidence",
+        "label_fr":           "Preuve d'alignement avec les ODD",
+        "field_type":         "string",
+        "consumers":          ["scoring:green"],
+        "computed_by":        [],
+        "intake_question_fr": (
+            "Comment votre projet contribue-t-il concrètement à ces ODD ? "
+            "Donnez des exemples mesurables."
+        ),
+        "intake_condition": {
+            "field":       "sdg_alignment",
+            "operator":    "not_empty",
+            "description": "Ask only if sdg_alignment is not empty.",
+        },
+        "nullable":           True,
+    },
+]
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -467,6 +592,16 @@ ROUTING_BY_STAGE: Dict[str, List[List[IntakeQuestion]]] = {
     "GROWTH":            [],
 }
 
+# ─────────────────────────────────────────────────────────────────────────────
+# SCORER_BLOCKS — questions tied to scoring dimensions, not maturity stages.
+# Asked independently of stage progression (e.g. after classifier questions
+# or as a dedicated section in the intake form).
+# ─────────────────────────────────────────────────────────────────────────────
+
+SCORER_BLOCKS: Dict[str, List[IntakeQuestion]] = {
+    "green": GREEN_BLOCK,
+}
+
 
 def get_routing_block(stage: str) -> List[IntakeQuestion]:
     """
@@ -480,12 +615,27 @@ def get_routing_block(stage: str) -> List[IntakeQuestion]:
     return questions
 
 
+def get_scorer_block(dimension: str) -> List[IntakeQuestion]:
+    """Return intake questions for a scoring dimension (not stage-gated)."""
+    return SCORER_BLOCKS.get(dimension.lower(), [])
+
+
 def get_all_routing_fields() -> List[str]:
-    """All profile fields populated by non-classifier intake questions."""
+    """All profile fields populated by stage-gated intake questions."""
     fields: List[str] = []
     for blocks in ROUTING_BY_STAGE.values():
         for block in blocks:
             for q in block:
                 if "field" in q:
                     fields.append(q["field"])
+    return sorted(set(fields))
+
+
+def get_all_scorer_fields() -> List[str]:
+    """All profile fields populated by scorer-specific intake questions."""
+    fields: List[str] = []
+    for block in SCORER_BLOCKS.values():
+        for q in block:
+            if "field" in q:
+                fields.append(q["field"])
     return sorted(set(fields))

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
-from diagnostic.calculations import (
+from criteria.calculations import (
     _get_profile_value,
     _to_float,
     _to_int,
