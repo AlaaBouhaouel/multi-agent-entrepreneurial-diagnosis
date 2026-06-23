@@ -69,6 +69,18 @@ STAGE_LABELS_FR: Dict[str, str] = {
     "GROWTH":            "Croissance",
 }
 
+# 1-based integer representation used throughout the profile and gap calculations.
+# IDEATION=1, MARKET_VALIDATION=2, ..., GROWTH=6
+STAGE_TO_INT: Dict[str, int] = {
+    stage: idx + 1 for idx, stage in enumerate(STAGE_ORDER)
+}
+INT_TO_STAGE: Dict[int, str] = {v: k for k, v in STAGE_TO_INT.items()}
+
+
+def stage_name_to_int(stage: str) -> Optional[int]:
+    """Convert a stage name (any case) to its 1-based integer. Returns None if unknown."""
+    return STAGE_TO_INT.get(stage.upper())
+
 BLOCKER_DOMAINS: Tuple[str, ...] = (
     "financier",
     "légal",

@@ -42,7 +42,7 @@ def _save_scoring_log(profile: Any, dim: str, result: Dict[str, Any]) -> None:
     ProfileLog.objects.create(
         project=profile,
         author=_DIM_AUTHOR[dim],
-        field_name=f"score.{dim}",
+        output_type=f"score.{dim}",
         metadata=result,
     )
 

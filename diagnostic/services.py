@@ -1,5 +1,8 @@
 from projects.models import ProfileLog, ProjectProfile
-from criteria.criteria_nested import get_stage_criteria, is_leaf, STAGE_ORDER, BLOCKER_DOMAINS, get_stage_index
+from criteria.criteria_nested import (
+    get_stage_criteria, is_leaf, STAGE_ORDER, BLOCKER_DOMAINS,
+    get_stage_index, stage_name_to_int,
+)
 from calculations import _get_profile_value, _to_float, _is_truthy
 from datetime import datetime, timezone
 
@@ -170,12 +173,12 @@ def detect_perception_gap(profile, assigned_stage):
     # diagnosed_stage is a stage name → convert to 1-based number
     diagnosed_number = (get_stage_index(assigned_stage) or 0) + 1
 
-    # self_assessed_stage may be stored as int (1–6) or stage name string
+    # self_assessed_stage must be an integer 1–6 (intake enforces this).
+    # Accept string stage names as a fallback for backwards compatibility.
     if isinstance(self_assessed, int):
         self_number = self_assessed
     elif isinstance(self_assessed, str):
-        idx = get_stage_index(self_assessed)
-        self_number = None if idx is None else idx + 1
+        self_number = stage_name_to_int(self_assessed)
     else:
         self_number = None
 
@@ -202,7 +205,8 @@ def detect_perception_gap(profile, assigned_stage):
 def save_diagnostic_log(profile, metadata):
     return ProfileLog.objects.create(
         project=profile,
-        author="diagnostic_engine",
+        author="diagnostic",
+        output_type="diagnosis_result",
         metadata=metadata,
     )
 
@@ -237,8 +241,6 @@ def diagnose_project(profile):
         "diagnosed_at":         datetime.now(timezone.utc).isoformat(),
     }
 
-    profile.current_stage = assigned_stage_index
-    profile.save(update_fields=["current_stage"])
     log = save_diagnostic_log(profile, metadata)
 
     return {

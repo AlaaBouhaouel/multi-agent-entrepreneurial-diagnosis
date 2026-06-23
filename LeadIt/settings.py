@@ -39,8 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'leadit_app',
     'projects',
-    'roadmap',
-    'scoring'    
 ]
 
 MIDDLEWARE = [
@@ -121,3 +119,7 @@ import os
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
+SESSION_COOKIE_AGE = 7200        # 2 hours — enough for one full session
+SESSION_SAVE_EVERY_REQUEST = True
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 MB — profile + history can be large
