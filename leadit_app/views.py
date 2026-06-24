@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import sys
 
@@ -25,6 +26,7 @@ _SCORE_AUTHOR = {
 }
 
 _anthropic_client = None
+logger = logging.getLogger(__name__)
 
 
 def _resolve_anthropic_api_key():
@@ -421,13 +423,20 @@ def analysis_start(request):
     except Exception as exc:
         return JsonResponse({'error': str(exc)}, status=500)
 
-    analyst = AnalystSession(
-        profile,
-        analysis,
-        call_llm,
-        project_name=request.session.get('intake_project_name', 'Projet'),
-    )
-    presentation = analyst.present()
+    try:
+        analyst = AnalystSession(
+            profile,
+            analysis,
+            call_llm,
+            project_name=request.session.get('intake_project_name', 'Projet'),
+        )
+        presentation = analyst.present()
+    except Exception as exc:
+        logger.exception("analysis_start presentation failure")
+        return JsonResponse(
+            {'error': f'analysis presentation failed: {exc.__class__.__name__}: {exc}'},
+            status=500
+        )
 
     request.session['analysis_result'] = analysis
     request.session['analyst_history'] = analyst._history
