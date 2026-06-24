@@ -99,6 +99,32 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
 .conv-input input:disabled{opacity:.4}
 .send{width:46px;height:46px;border-radius:50%;background:var(--instrument);border:1px solid var(--line-gold);color:var(--gold);display:grid;place-content:center;font-size:17px;flex-shrink:0;transition:all var(--tf);box-shadow:0 8px 20px -14px rgba(198,161,91,.6)}
 .send:hover{background:var(--gold);color:var(--void);box-shadow:0 10px 26px -12px rgba(198,161,91,.75)}.send:active{transform:scale(.92)}
+.mic{width:46px;height:46px;border-radius:50%;background:var(--instrument);border:1px solid var(--line-gold);color:var(--gold);display:grid;place-content:center;flex-shrink:0;transition:all var(--tf)}
+.mic svg{width:19px;height:19px}
+.mic:hover:not(:disabled){background:var(--gold);color:var(--void);box-shadow:0 8px 22px -12px var(--gold)}
+.mic:active:not(:disabled){transform:scale(.92)}
+.mic:disabled{opacity:.35;cursor:default}
+.mic.recording{background:var(--gold);color:var(--void);box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 22%,transparent)}
+
+/* ── Voice interview (call) overlay ── */
+.call-overlay{position:absolute;inset:0;z-index:20;display:none;align-items:center;justify-content:center;background:radial-gradient(ellipse 70% 60% at 50% 42%,color-mix(in srgb,var(--gold) 9%,var(--void)),var(--void) 78%);backdrop-filter:blur(7px)}
+.call-overlay.show{display:flex;animation:fade .4s}
+.call-inner{display:flex;flex-direction:column;align-items:center;gap:24px;text-align:center;padding:30px}
+.call-status{font-family:var(--fm);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+.call-transcript{max-width:34ch;min-height:3.2em;font-size:15px;font-weight:400;color:var(--t1);line-height:1.6}
+.call-actions{display:flex;gap:11px;align-items:center}
+.call-lang{font-family:var(--fm);font-size:11px;letter-spacing:.1em;color:var(--t2);border:1px solid var(--line);border-radius:30px;padding:9px 15px;min-width:48px}
+.call-lang:hover{border-color:var(--line-gold);color:var(--gold)}
+.call-hang{font-family:var(--fm);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--void);background:var(--gold);border-radius:30px;padding:11px 22px;font-weight:500;transition:background var(--tf)}
+.call-hang:hover{background:var(--gold-bright)}
+.voice-orb{position:relative;width:200px;height:200px;display:grid;place-items:center}
+.voice-orb .ring{position:absolute;width:140px;height:140px;border-radius:50%;border:1px solid var(--line-gold);animation:vring 3s ease-out infinite}
+.voice-orb .blob{position:absolute;width:172px;height:172px;border-radius:42% 58% 55% 45%/48% 42% 58% 52%;background:radial-gradient(circle at 35% 30%,var(--gold-bright),var(--gold) 58%,transparent 73%);filter:blur(3px);opacity:.85;animation:vmorph 8s ease-in-out infinite,vspin 16s linear infinite}
+.voice-orb .blob.b2{width:150px;height:150px;opacity:.5;animation-duration:11s,22s;animation-direction:reverse;background:radial-gradient(circle at 62% 66%,var(--gold-bright),transparent 70%)}
+.voice-orb .core{position:relative;z-index:1;width:96px;height:96px;border-radius:50%;background:radial-gradient(circle at 40% 34%,color-mix(in srgb,var(--gold-bright) 92%,#fff),var(--gold) 72%);box-shadow:0 0 36px -6px var(--gold);transition:transform .09s ease-out,box-shadow .12s ease-out}
+@keyframes vmorph{0%,100%{border-radius:42% 58% 55% 45%/48% 42% 58% 52%}33%{border-radius:58% 42% 48% 52%/55% 58% 42% 45%}66%{border-radius:50% 50% 58% 42%/42% 55% 45% 58%}}
+@keyframes vspin{to{transform:rotate(360deg)}}
+@keyframes vring{0%{transform:scale(.8);opacity:.55}100%{transform:scale(1.65);opacity:0}}
 
 /* ── Instrument panel ── */
 .panel{grid-row:2;overflow-y:auto;padding:18px 26px 26px;background:radial-gradient(ellipse 55% 50% at 85% -8%,rgba(198,161,91,.05),transparent 60%),var(--void);display:flex;flex-wrap:wrap;gap:18px;align-content:flex-start}
@@ -262,8 +288,28 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
       </div>
     </div>
     <div class="conv-input">
+      <button class="mic" id="mic-btn" type="button" title="Entretien vocal" disabled aria-label="Démarrer l'entretien vocal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><line x1="12" y1="18" x2="12" y2="21"/></svg>
+      </button>
       <input id="msg-in" type="text" placeholder="Commencez l'entretien…" disabled>
       <button class="send" id="send-btn" disabled>&#8594;</button>
+    </div>
+
+    <div class="call-overlay" id="call-overlay" aria-hidden="true">
+      <div class="call-inner">
+        <div class="call-status" id="call-status">Entretien vocal</div>
+        <div class="voice-orb" id="voice-orb">
+          <span class="ring"></span>
+          <span class="blob b1"></span>
+          <span class="blob b2"></span>
+          <span class="core" id="voice-core"></span>
+        </div>
+        <div class="call-transcript" id="call-transcript">Je vous écoute…</div>
+        <div class="call-actions">
+          <button class="call-lang" id="call-lang" type="button" title="Langue de reconnaissance">FR</button>
+          <button class="call-hang" id="call-hang" type="button">Terminer l'entretien</button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -648,7 +694,7 @@ const conv=document.getElementById('conv'),input=document.getElementById('msg-in
 function addMsg(html,who,chips){const m=document.createElement('div');m.className='msg '+who;let c='';if(chips&&chips.length)c=`<div class="extracted">${chips.map(x=>`<span class="ex-chip">+ ${esc(x)}</span>`).join('')}</div>`;
   m.innerHTML=`<div class="av">${who==='bot'?'L':'V'}</div><div class="bub">${html}${c}</div>`;conv.appendChild(m);conv.scrollTop=conv.scrollHeight;return m;}
 function typing(){const m=document.createElement('div');m.className='msg bot';m.innerHTML='<div class="av">L</div><div class="bub"><span class="typing"><i></i><i></i><i></i></span></div>';conv.appendChild(m);conv.scrollTop=conv.scrollHeight;return m;}
-function setInputEnabled(on){input.disabled=!on;sendBtn.disabled=!on;if(on)input.focus();}
+function setInputEnabled(on){input.disabled=!on;sendBtn.disabled=!on;const mb=document.getElementById('mic-btn');if(mb&&VOICE_SUPPORTED)mb.disabled=!on;if(on&&!VOICE.active)input.focus();}
 
 // ── Interview flow (wired to the real backend, contract from the live page) ──
 async function startSession(){
@@ -910,6 +956,140 @@ function hydrateFromServerData(){
     }
     setInputEnabled(true);
   }
+}
+
+// ── Voice interview (call) mode ──────────────────────────────────────────────
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+const VOICE_SUPPORTED=!!SR;
+const VOICE={active:false,rec:null,lang:'fr-FR',stream:null,ac:null,analyser:null,raf:null,speaking:false};
+const micBtn=document.getElementById('mic-btn');
+const callOverlay=document.getElementById('call-overlay');
+const callStatus=document.getElementById('call-status');
+const callTranscript=document.getElementById('call-transcript');
+const voiceCore=document.getElementById('voice-core');
+
+if(!VOICE_SUPPORTED){micBtn.style.display='none';}
+
+micBtn.onclick=()=>{if(!VOICE.active)startCall();};
+document.getElementById('call-hang').onclick=endCall;
+document.getElementById('call-lang').onclick=()=>{
+  VOICE.lang=VOICE.lang==='fr-FR'?'ar-SA':'fr-FR';
+  document.getElementById('call-lang').textContent=VOICE.lang==='fr-FR'?'FR':'AR';
+  if(VOICE.rec){try{VOICE.rec.stop();}catch(e){}}  // re-listen with new language
+};
+
+async function startCall(){
+  if(!VOICE_SUPPORTED){addMsg('La reconnaissance vocale n\'est pas supportée par ce navigateur (essayez Chrome ou Edge).','bot');return;}
+  VOICE.active=true;
+  micBtn.classList.add('recording');
+  callOverlay.classList.add('show');callOverlay.setAttribute('aria-hidden','false');
+  callTranscript.textContent='Je vous écoute…';
+  try{
+    VOICE.stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    VOICE.ac=new (window.AudioContext||window.webkitAudioContext)();
+    const src=VOICE.ac.createMediaStreamSource(VOICE.stream);
+    VOICE.analyser=VOICE.ac.createAnalyser();VOICE.analyser.fftSize=256;
+    src.connect(VOICE.analyser);
+    animateOrb();
+  }catch(e){/* amplitude reactivity is optional — recognition still works */}
+  listen();
+}
+
+function animateOrb(){
+  const buf=new Uint8Array(VOICE.analyser.frequencyBinCount);
+  const tick=()=>{
+    if(!VOICE.active){VOICE.raf=null;return;}
+    VOICE.analyser.getByteTimeDomainData(buf);
+    let sum=0;for(let i=0;i<buf.length;i++){const v=(buf[i]-128)/128;sum+=v*v;}
+    const amp=Math.min(1,Math.sqrt(sum/buf.length)*3.4);
+    voiceCore.style.transform=`scale(${(1+amp*0.55).toFixed(3)})`;
+    voiceCore.style.boxShadow=`0 0 ${Math.round(34+amp*70)}px -6px var(--gold)`;
+    VOICE.raf=requestAnimationFrame(tick);
+  };
+  tick();
+}
+
+function listen(){
+  if(!VOICE.active||VOICE.speaking)return;
+  const rec=new SR();
+  VOICE.rec=rec;
+  rec.lang=VOICE.lang;rec.interimResults=true;rec.continuous=false;rec.maxAlternatives=1;
+  callStatus.textContent='Je vous écoute…';
+  let finalText='';
+  rec.onresult=e=>{
+    let interim='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const r=e.results[i];
+      if(r.isFinal)finalText+=r[0].transcript;else interim+=r[0].transcript;
+    }
+    callTranscript.textContent=(finalText+' '+interim).trim()||'…';
+  };
+  rec.onerror=ev=>{
+    if(ev.error==='not-allowed'||ev.error==='service-not-allowed'){
+      callStatus.textContent='Micro refusé';
+      callTranscript.textContent='Autorisez le micro pour utiliser l\'entretien vocal.';
+      VOICE.active=false;
+    }
+  };
+  rec.onend=()=>{
+    VOICE.rec=null;
+    if(!VOICE.active)return;
+    const said=finalText.trim();
+    if(said)handleVoiceTurn(said);
+    else if(!VOICE.speaking)listen();  // heard nothing — keep the line open
+  };
+  try{rec.start();}catch(e){}
+}
+
+async function handleVoiceTurn(text){
+  callStatus.textContent='Traitement…';
+  callTranscript.textContent=text;
+  addMsg(esc(text),'user');
+  try{
+    if(ST.done){
+      const d=await post('/api/analysis/ask/',{question:text});
+      const ans=d.answer||d.error||'';
+      addMsg(esc(ans).replace(/\n/g,'<br>'),'bot');
+      await speak(ans);
+    }else{
+      ST.answered++;document.getElementById('t-answered').textContent=ST.answered;
+      const d=await post('/api/session/message/',{message:text});
+      if(d.error){addMsg('Erreur : '+esc(d.error),'bot');}
+      else{
+        const chips=Object.keys(d.extracted||{}).map(k=>FIELD_LABELS[k]||k);
+        applyExtraction(d.extracted);setStats(d.stats);
+        addMsg(esc(d.question||''),'bot',chips);
+        await speak(d.question||'');
+        if(d.is_done){endCall();finishAndReveal();return;}
+      }
+    }
+  }catch(e){addMsg('Erreur réseau. Veuillez réessayer.','bot');}
+  if(VOICE.active)listen();
+}
+
+function speak(text){
+  return new Promise(resolve=>{
+    const clean=String(text||'').replace(/[*_#>`]/g,'').trim();
+    if(!clean||!window.speechSynthesis){resolve();return;}
+    VOICE.speaking=true;callStatus.textContent='LeadIt répond…';
+    const u=new SpeechSynthesisUtterance(clean);
+    u.lang=VOICE.lang;u.rate=1.03;
+    u.onend=u.onerror=()=>{VOICE.speaking=false;resolve();};
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(u);
+  });
+}
+
+function endCall(){
+  VOICE.active=false;VOICE.speaking=false;
+  micBtn.classList.remove('recording');
+  if(VOICE.rec){try{VOICE.rec.stop();}catch(e){}VOICE.rec=null;}
+  if(window.speechSynthesis)window.speechSynthesis.cancel();
+  if(VOICE.raf){cancelAnimationFrame(VOICE.raf);VOICE.raf=null;}
+  if(VOICE.stream){VOICE.stream.getTracks().forEach(t=>t.stop());VOICE.stream=null;}
+  if(VOICE.ac){try{VOICE.ac.close();}catch(e){}VOICE.ac=null;}
+  callOverlay.classList.remove('show');callOverlay.setAttribute('aria-hidden','true');
+  if(!input.disabled)input.focus();
 }
 
 window.addEventListener('load',()=>{drawRadar();hydrateFromServerData();});
