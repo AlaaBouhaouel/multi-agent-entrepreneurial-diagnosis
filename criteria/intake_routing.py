@@ -39,8 +39,8 @@ STRUCTURATION:
                             Feeds: monthly_fixed_costs, breakeven_months,
                             repayment_capacity_ratio, credit_eligibility_path,
                             5-year projection.
-  LEGAL_BLOCK (Part B.2)  — legal_form_type, associes, gerant, needs_premises,
-                            has_premises.
+  LEGAL_BLOCK (Part B.2)  — legal_form_type, has_premises.
+                            (Identity fields — gérant, associés — are not collected.)
 
 
 
@@ -92,59 +92,6 @@ GREEN_BLOCK: List[IntakeQuestion] = [
         "nullable":           True,
     },
     {
-        "field":              "waste_reduction_measures",
-        "label_fr":           "Mesures de réduction des déchets",
-        "field_type":         "string",
-        "consumers":          ["scoring:green"],
-        "computed_by":        [],
-        "intake_question_fr": "Quelles mesures prenez-vous pour réduire les déchets générés par votre activité ?",
-        "intake_condition":   None,
-        "nullable":           True,
-    },
-    {
-        "field":              "energy_reduction_measures",
-        "label_fr":           "Mesures d'efficacité énergétique",
-        "field_type":         "string",
-        "consumers":          ["scoring:green"],
-        "computed_by":        [],
-        "intake_question_fr": "Comment réduisez-vous la consommation d'énergie dans votre projet ?",
-        "intake_condition":   None,
-        "nullable":           True,
-    },
-    {
-        "field":              "water_reduction_measures",
-        "label_fr":           "Mesures de réduction de la consommation d'eau",
-        "field_type":         "string",
-        "consumers":          ["scoring:green"],
-        "computed_by":        [],
-        "intake_question_fr": "Quelles mesures avez-vous prises pour réduire la consommation d'eau ?",
-        "intake_condition":   None,
-        "nullable":           True,
-    },
-    {
-        "field":              "resource_efficiency_measures",
-        "label_fr":           "Mesures d'efficacité des ressources",
-        "field_type":         "string",
-        "consumers":          ["scoring:green"],
-        "computed_by":        [],
-        "intake_question_fr": "Comment optimisez-vous l'utilisation des matières premières et ressources ?",
-        "intake_condition":   None,
-        "nullable":           True,
-    },
-    {
-        "field":              "circular_practices_described",
-        "label_fr":           "Pratiques d'économie circulaire",
-        "field_type":         "string",
-        "consumers":          ["scoring:green"],
-        "computed_by":        [],
-        "intake_question_fr": (
-            "Décrivez vos pratiques d'économie circulaire "
-            "(recyclage, réutilisation, valorisation des déchets, etc.)."
-        ),
-        "intake_condition":   None,
-        "nullable":           True,
-    },
-    {
         "field":              "sdg_alignment",
         "label_fr":           "Alignement avec les ODD",
         "field_type":         "list",
@@ -156,23 +103,6 @@ GREEN_BLOCK: List[IntakeQuestion] = [
             "Si oui, lesquels ? (ex : ODD 7, ODD 12, ODD 13)"
         ),
         "intake_condition":   None,
-        "nullable":           True,
-    },
-    {
-        "field":              "sdg_evidence",
-        "label_fr":           "Preuve d'alignement avec les ODD",
-        "field_type":         "string",
-        "consumers":          ["scoring:green"],
-        "computed_by":        [],
-        "intake_question_fr": (
-            "Comment votre projet contribue-t-il concrètement à ces ODD ? "
-            "Donnez des exemples mesurables."
-        ),
-        "intake_condition": {
-            "field":       "sdg_alignment",
-            "operator":    "not_empty",
-            "description": "Ask only if sdg_alignment is not empty.",
-        },
         "nullable":           True,
     },
 ]
@@ -289,7 +219,7 @@ CHARGES_BLOCK: List[IntakeQuestion] = [
         ),
         "intake_condition":   None,
     },
-    # ── Equipment & investment ────────────────────────────────────────────────
+    # ── Investment ────────────────────────────────────────────────────────────
     {
         "field":              "initial_investment",
         "label_fr":           "Investissement initial",
@@ -299,43 +229,7 @@ CHARGES_BLOCK: List[IntakeQuestion] = [
         "intake_question_fr": "Quel est l'investissement initial nécessaire pour démarrer (en DT) ? (équipements, aménagement, stock de départ, etc.)",
         "intake_condition":   None,
     },
-    {
-        "field":              "equipment_investment",
-        "label_fr":           "Coût total de l'équipement",
-        "field_type":         "float",
-        "consumers":          ["feasibility"],
-        "computed_by":        ["dotation_amortissement"],
-        "intake_question_fr": "Quel est le coût total de l'équipement ou du matériel nécessaire (en DT) ?",
-        "intake_condition":   None,
-        "nullable":           True,
-    },
-    {
-        "field":              "equipment_lifespan_years",
-        "label_fr":           "Durée d'amortissement de l'équipement",
-        "field_type":         "int",
-        "consumers":          ["feasibility"],
-        "computed_by":        ["dotation_amortissement"],
-        "intake_question_fr": "Sur combien d'années cet équipement est-il utilisable ? (durée d'amortissement)",
-        "intake_condition": {
-            "field":       "equipment_investment",
-            "operator":    "gt",
-            "value":       0,
-            "description": "Ask only if equipment_investment > 0.",
-        },
-    },
-    {
-        "field":              "ca_growth_rate",
-        "label_fr":           "Taux de croissance annuel prévu",
-        "field_type":         "float",
-        "consumers":          ["feasibility"],
-        "computed_by":        ["van_5_years", "projection_5y"],
-        "intake_question_fr": (
-            "De combien estimez-vous augmenter vos ventes chaque année ? "
-            "(en %, ex : 0.10 pour 10%)"
-        ),
-        "intake_condition":   None,
-    },
-    # ── Opex financing & runway ───────────────────────────────────────────────
+    # ── Opex financing ────────────────────────────────────────────────────────
     {
         "field":              "has_opex_financing",
         "label_fr":           "Financement des charges d'exploitation",
@@ -343,28 +237,6 @@ CHARGES_BLOCK: List[IntakeQuestion] = [
         "consumers":          ["scoring:market", "roadmap_eligibility", "feasibility"],
         "computed_by":        ["credit_eligibility_path"],
         "intake_question_fr": "Avez-vous déjà le financement pour couvrir vos charges d'exploitation (loyer, salaires, etc.) ?",
-        "intake_condition":   None,
-    },
-    {
-        "field":              "opex_financing_source",
-        "label_fr":           "Source du financement d'exploitation",
-        "field_type":         "string",
-        "consumers":          ["roadmap_eligibility"],
-        "computed_by":        [],
-        "intake_question_fr": "D'où vient ce financement ? (épargne personnelle, famille, revenus existants, autre)",
-        "intake_condition": {
-            "field":       "has_opex_financing",
-            "value":       True,
-            "description": "Ask only if has_opex_financing = True.",
-        },
-    },
-    {
-        "field":              "opex_months_covered",
-        "label_fr":           "Durée de trésorerie disponible",
-        "field_type":         "int",
-        "consumers":          ["scoring:market", "feasibility"],
-        "computed_by":        [],
-        "intake_question_fr": "Pour combien de mois pouvez-vous couvrir vos charges sans revenus ?",
         "intake_condition":   None,
     },
     # ── Credit situation ──────────────────────────────────────────────────────
@@ -391,19 +263,6 @@ CHARGES_BLOCK: List[IntakeQuestion] = [
         },
     },
     {
-        "field":              "credit_duration_years",
-        "label_fr":           "Durée de remboursement souhaitée",
-        "field_type":         "int",
-        "consumers":          ["feasibility"],
-        "computed_by":        ["loan_schedule", "repayment_capacity_ratio"],
-        "intake_question_fr": "Sur combien d'années souhaitez-vous rembourser ?",
-        "intake_condition": {
-            "field":       "needs_credit",
-            "value":       True,
-            "description": "Ask only if needs_credit = True.",
-        },
-    },
-    {
         "field":              "has_guarantee",
         "label_fr":           "Garantie disponible",
         "field_type":         "bool",
@@ -417,53 +276,32 @@ CHARGES_BLOCK: List[IntakeQuestion] = [
         },
     },
     {
-        "field":              "guarantee_type",
-        "label_fr":           "Type de garantie",
-        "field_type":         "enum",
-        "allowed_values":     ["immobilier", "terrain", "caution_personnelle", "nantissement"],
-        "consumers":          ["roadmap_eligibility", "feasibility"],
-        "computed_by":        ["credit_eligibility_path"],
-        "intake_question_fr": "De quel type est votre garantie ? (immobilier, terrain, caution personnelle, nantissement)",
-        "intake_condition": {
-            "field":       "has_guarantee",
-            "value":       True,
-            "description": "Ask only if has_guarantee = True.",
-        },
-    },
-    {
-        "field":              "has_existing_credit",
-        "label_fr":           "Crédit en cours",
-        "field_type":         "bool",
-        "consumers":          ["scoring:market", "roadmap_eligibility", "feasibility"],
-        "computed_by":        ["repayment_capacity_ratio", "credit_eligibility_path"],
-        "intake_question_fr": "Avez-vous déjà un crédit en cours ?",
-        "intake_condition":   None,
-    },
-    {
-        "field":              "existing_credit_monthly_payment",
-        "label_fr":           "Échéance mensuelle du crédit existant",
+        "field":              "annual_debt_service",
+        "label_fr":           "Remboursement annuel des emprunts",
         "field_type":         "float",
         "consumers":          ["feasibility"],
-        "computed_by":        ["repayment_capacity_ratio", "annual_debt_service"],
-        "intake_question_fr": "Quelle est votre échéance mensuelle actuelle (en DT) ?",
+        "computed_by":        ["repayment_capacity_ratio"],
+        "intake_question_fr": "Quel est le montant total de vos remboursements d'emprunts sur une année (en DT) ?",
         "intake_condition": {
-            "field":       "has_existing_credit",
+            "field":       "needs_credit",
             "value":       True,
-            "description": "Ask only if has_existing_credit = True.",
+            "description": "Ask only if needs_credit = True.",
         },
+        "nullable":           True,
     },
     {
-        "field":              "existing_credit_remaining_years",
-        "label_fr":           "Années restantes sur le crédit existant",
-        "field_type":         "int",
+        "field":              "apport_personnel",
+        "label_fr":           "Apport personnel",
+        "field_type":         "float",
         "consumers":          ["feasibility"],
-        "computed_by":        ["projection_5y"],
-        "intake_question_fr": "Combien d'années restent sur ce crédit ?",
+        "computed_by":        ["minimum_credit_needed"],
+        "intake_question_fr": "Quel est le montant de votre apport personnel dans ce projet (en DT) ?",
         "intake_condition": {
-            "field":       "has_existing_credit",
+            "field":       "needs_credit",
             "value":       True,
-            "description": "Ask only if has_existing_credit = True.",
+            "description": "Ask only if needs_credit = True.",
         },
+        "nullable":           True,
     },
     {
         "field":              "credit_eligibility_blockers",
@@ -513,67 +351,19 @@ STRUCTURATION_LEGAL_BLOCK: List[IntakeQuestion] = [
         ),
     },
     {
-        # Asked only when legal_form_type is a personne morale.
-        "field":              "associes",
-        "label_fr":           "Associés",
-        "consumers":          ["feasibility", "scoring:scalability"],
-        "field_type":         "list",
-        "intake_question_fr": (
-            "Qui sont les associés ? Pour chaque associé, indiquez le nom et "
-            "le nombre de parts sociales."
-        ),
-        "intake_condition": {
-            "field":       "legal_form_type",
-            "value_in":    ["SARL", "SUARL", "SA", "SAS"],
-            "description": "Ask only for personne morale legal forms.",
-        },
-        "coherence_check": {
-            "SARL":  {"min_associes": 2, "description": "SARL requires ≥ 2 associés."},
-            "SUARL": {"min_associes": 1, "max_associes": 1, "description": "SUARL requires exactly 1 associé."},
-        },
-        "coherence_flag_target": "etude_de_projet",
-    },
-    {
-        "field":              "gerant",
-        "label_fr":           "Gérant",
-        "consumers":          ["feasibility", "scoring:commercial"],
-        "field_type":         "string",
-        "intake_question_fr": "Qui est le gérant de l'entreprise ?",
-        "intake_condition": {
-            "field":       "legal_form_type",
-            "value_in":    ["SARL", "SUARL", "SA", "SAS"],
-            "description": "Ask only for personne morale legal forms.",
-        },
-    },
-    {
-        "field":              "needs_premises",
-        "label_fr":           "Local nécessaire",
-        "consumers":          [],
-        "field_type":         "bool",
-        "role":               "branch_gate",
-        "intake_question_fr": "Votre activité nécessite-t-elle un local (atelier, bureau, point de vente) ?",
-        "intake_condition": {
-            "field":       "legal_form_status",
-            "value_in":    ["in_progress", "registered"],
-            "description": "Ask when legal entity exists.",
-        },
-    },
-    {
         "field":              "has_premises",
         "label_fr":           "Local disponible",
         "consumers":          ["roadmap_eligibility", "feasibility"],
         "field_type":         "bool",
-        "intake_question_fr": "Avez-vous déjà un local ?",
+        "intake_question_fr": "Disposez-vous d'un local confirmé pour exercer votre activité ?",
         "intake_condition": {
-            "field":       "needs_premises",
+            "field":       "needs_credit",
             "value":       True,
-            "description": "Ask only if needs_premises = True.",
+            "description": "Ask when a credit is needed (premises count as fonds de commerce guarantee).",
         },
         "roadmap_note": (
             "has_premises = True → eligible as fonds de commerce / garantie "
-            "in credit_eligibility_path logic. "
-            "needs_premises = True & has_premises = False → roadmap blocker: "
-            "'sécuriser un local avant de déposer un dossier de crédit'."
+            "in credit_eligibility_path logic."
         ),
     },
 ]

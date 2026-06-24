@@ -10,7 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +22,27 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-bo7fnu@gc2!i$vhbn#gam-jftah+luu=da34i4mo))jp)lzm@^'
+SECRET_KEY = os.environ.get(
+    'SECRET_KEY',
+    'django-insecure-bo7fnu@gc2!i$vhbn#gam-jftah+luu=da34i4mo))jp)lzm@^',
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [h.strip() for h in os.environ.get('ALLOWED_HOSTS', '').split(',') if h.strip()]
+RAILWAY_PUBLIC_DOMAIN = os.environ.get('RAILWAY_PUBLIC_DOMAIN')
+ON_RAILWAY = bool(os.environ.get('RAILWAY_ENVIRONMENT') or RAILWAY_PUBLIC_DOMAIN)
+if RAILWAY_PUBLIC_DOMAIN:
+    ALLOWED_HOSTS.append(RAILWAY_PUBLIC_DOMAIN)
+if not ALLOWED_HOSTS:
+    ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
+CSRF_TRUSTED_ORIGINS = [
+    o.strip() for o in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if o.strip()
+]
+if RAILWAY_PUBLIC_DOMAIN:
+    CSRF_TRUSTED_ORIGINS.append(f'https://{RAILWAY_PUBLIC_DOMAIN}')
 
 
 # Application definition
@@ -39,14 +56,17 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'leadit_app',
     'projects',
+    'roadmap',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'leadit_app.middleware.RequireLoginMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -75,12 +95,22 @@ WSGI_APPLICATION = 'LeadIt.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.parse(
+            DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=True,
+        )
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -112,14 +142,33 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-import os
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Auth redirects
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'         # after successful login, go to the diagnostic app
+LOGOUT_REDIRECT_URL = '/logged-out/'
 
 SESSION_COOKIE_AGE = 7200        # 2 hours — enough for one full session
 SESSION_SAVE_EVERY_REQUEST = True
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 MB — profile + history can be large
+
+# Roadmap (Feature 3)
+ROADMAP_KB_PATH = os.path.join(BASE_DIR, 'kb', 'KB_merged.json')
+ROADMAP_EMBEDDER = 'auto'                 # 'auto' | 'bge' | 'hashing'
+ROADMAP_RAG_MODEL = 'claude-opus-4-8'     # RAG synthesizer (presenter stays on Sonnet 4.6)
+ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY')  # shared by RAG + presenter
+
+# Railway / reverse-proxy production defaults
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = (not DEBUG) and ON_RAILWAY
+SESSION_COOKIE_SECURE = (not DEBUG) and ON_RAILWAY
+CSRF_COOKIE_SECURE = (not DEBUG) and ON_RAILWAY

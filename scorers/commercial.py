@@ -26,7 +26,6 @@ def score_commercial(profile: Any, metrics: Dict[str, Any]) -> Dict[str, Any]:
         _local_price_positioning(metrics),
         _foreign_price_positioning(metrics),
         _volume_vs_breakeven(profile, metrics),
-        _management_identified(profile),
     ]
     return build_result(leaves, _FLOOR)
 
@@ -127,17 +126,4 @@ def _volume_vs_breakeven(profile: Any, metrics: Dict[str, Any]) -> Dict[str, Any
             "ratio":                  ratio,
         },
         justification = f"expected/breakeven ratio {ratio} → score {score}",
-    )
-
-
-def _management_identified(profile: Any) -> Dict[str, Any]:
-    gerant = _get_profile_value(profile, "gerant")
-    score  = 10.0 if gerant else 0.0
-    return leaf(
-        criterion    = "management_identified",
-        label_fr     = "Gérant identifié",
-        score        = score,
-        weight       = 0.05,
-        evidence     = {"gerant": bool(gerant)},
-        justification = f"gerant={'set' if gerant else 'missing'} → score {score}",
     )

@@ -1,0 +1,794 @@
+[
+  {
+    "resource_id": "apii_pepinieres_entreprises",
+    "name": "APII – Pépinières d'entreprises",
+    "provider": "APII (Agence de Promotion de l'Industrie et de l'Innovation)",
+    "category": "incubation",
+    "description": "Réseau national de pépinières qui héberge et accompagne les jeunes entreprises industrielles et innovantes.",
+    "source_url": "https://www.tunisieindustrie.nat.tn/fr/pepinieres.asp",
+    "stage_tags": [
+      "ideation",
+      "validation",
+      "structuration"
+    ],
+    "blocker_domains": [
+      "organisationnel",
+      "technique"
+    ],
+    "eligibility": "Jeunes entreprises industrielles ou innovantes, porteurs de projets.",
+    "benefits": "Hébergement à tarif réduit + accompagnement gratuit.",
+    "trust_level": "official",
+    "status": "active"
+  },
+  {
+    "resource_id": "apii_think_green",
+    "name": "APII – Programme THINK GREEN (PNUD)",
+    "provider": "APII / PNUD",
+    "category": "incubation",
+    "description": "Programme d'accompagnement dédié à l'entrepreneuriat vert dans les régions du Sud et de Kairouan : formations, coaching, ateliers sur l'innovation durable.",
+    "source_url": "https://www.tunisieindustrie.nat.tn",
+    "stage_tags": [
+      "ideation",
+      "validation"
+    ],
+    "blocker_domains": [
+      "green",
+      "organisationnel"
+    ],
+    "eligibility": "Porteurs d'idées et entrepreneurs engagés dans des projets à impact environnemental.",
+    "benefits": "Accompagnement structuré + coaching personnalisé (gratuit).",
+    "trust_level": "official",
+    "status": "active"
+  },
+  {
+    "resource_id": "apii_prime_investissement",
+    "name": "APII – Prime d'investissement",
+    "provider": "APII",
+    "category": "funding",
+    "description": "Aide financière sous forme de subvention pour encourager les investissements dans divers secteurs économiques en Tunisie.",
+    "source_url": "https://www.tunisieindustrie.nat.tn",
+    "stage_tags": [
+      "structuration",
+      "fundraising",
+      "launch_planning"
+    ],
+    "blocker_domains": [
+      "financier"
+    ],
+    "eligibility": "Entreprises industrielles et innovantes.",
+    "benefits": "Subvention sur une partie du coût du projet.",
+    "trust_level": "official",
+    "status": "active"
+  },
+  {
+    "resource_id": "anpe_accompagnement_creation",
+    "name": "ANPE – Accompagnement à la création d'entreprise",
+    "provider": "Agence Nationale pour l'Emploi et le Travail Indépendant (ANETI)",
+    "category": "incubation",
+    "description": "L'agence accompagne les demandeurs d'emploi et jeunes diplômés dans la création de leur projet.",
+    "source_url": "https://www.emploi.nat.tn/fo/Fr/global.php?menu2=41",
+    "stage_tags": [
+      "ideation",
+      "validation"
+    ],
+    "blocker_domains": [
+      "organisationnel"
+    ],
+    "eligibility": "Demandeurs d'emploi, jeunes diplômés sans expérience professionnelle.",
+    "benefits": "Accompagnement gratuit + orientation vers financements.",
+    "trust_level": "official",
+    "status": "active"
+  },
+  {
+    "resource_id": "startup_act_label",
+    "name": "Startup Act – Label Startup",
+    "provider": "Smart Capital / Ministère des Technologies de la Communication",
+    "category": "legal",
+    "description": "Cadre juridique unique pour les startups tunisiennes : 20 mesures d'incitation (salaires garantis, congés, avantages fiscaux, accès aux marchés publics).",
+    "source_url": "https://startup.gov.tn",
+    "stage_tags": [
+      "structuration",
+      "fundraising"
+    ],
+    "blocker_domains": [
+      "légal",
+      "financier"
+    ],
+    "eligibility": "Startups innovantes constituées en société tunisienne, de moins de 8 ans.",
+    "benefits": "Salaires garantis fondateurs, avantages fiscaux, accès simplifié aux marchés publics.",
+    "trust_level": "official",
+    "status": "active"
+  },
+  {
+    "resource_id": "startup_act_fonds_de_fonds",
+    "name": "Startup Act – Fonds de fonds (ANAVA)",
+    "provider": "Smart Capital",
+    "category": "funding",
+    "description": "Mécanisme de financement public-privé dédié aux startups labellisées, avec fonds Seed, Early Stage et Late Stage.",
+    "source_url": "https://startup.gov.tn",
+    "stage_tags": [
+      "fundraising",
+      "launch_planning",
+      "growth"
+    ],
+    "blocker_domains": [
+      "financier"
+    ],
+    "eligibility": "Startups labellisées Startup Act.",
+    "benefits": "Fonds d'amorçage à plusieurs millions de dinars selon le stade.",
+    "trust_level": "official",
+    "status": "active"
+  },
+  {
+    "resource_id": "bfpme_credit_mlt",
+    "name": "BFPME – Crédit à moyen/long terme",
+    "provider": "Banque de Financement des PME (BFPME)",
+    "category": "funding",
+    "description": "Crédits à moyen et long terme pour PME, startups, projets agricoles et de pêche, finançant jusqu'à 70% du coût du projet.",
+    "source_url": "https://www.bfpme.com.tn/fr/produits",
+    "stage_tags": [
+      "structuration",
+      "fundraising",
+      "launch_planning",
+      "growth"
+    ],
+    "blocker_domains": [
+      "financier"
+    ],
+    "eligibility": "PME, startups, projets agricoles et de pêche. Apport personnel minimum de 10 à 12% des fonds propres.",
+    "benefits": "Financement jusqu'à 70% du coût du projet, taux bonifiés pour l'innovation.",
+    "trust_level": "official",
+    "status": "active"
+  },
+  {
+    "resource_id": "bfpme_financement_sans_interets",
+    "name": "BFPME – Financement sans intérêts startups",
+    "provider": "BFPME",
+    "category": "funding",
+    "description": "Ligne de financement sans intérêts spécifiquement dédiée aux jeunes pousses (startups).",
+    "source_url": "https://www.bfpme.com.tn/fr/produits",
+    "stage_tags": [
+      "fundraising",
+      "launch_planning"
+    ],
+    "blocker_domains": [
+      "financier"
+    ],
+    "eligibility": "Startups tunisiennes.",
+    "benefits": "Financement sans intérêts (montant selon le projet).",
+    "trust_level": "official",
+    "status": "active"
+  },
+  {
+    "resource_id": "bts_financement_petits_projets",
+    "name": "BTS – Financement petits projets",
+    "provider": "Banque Tunisienne de Solidarité (BTS)",
+    "category": "funding",
+    "description": "Finance les projets dont le coût ne dépasse pas 150 000 DT, dans le cadre du soutien à l'entrepreneuriat et à l'auto-emploi.",
+    "source_url": "https://www.bts.com.tn/credit-vert-bts-bank/",
+    "stage_tags": [
+      "ideation",
+      "validation",
+      "structuration"
+    ],
+    "blocker_domains": [
+      "financier"
+    ],
+    "eligibility": "Jeunes promoteurs, personnes sans emploi, projets de petite taille (coût < 150 000 DT).",
+    "benefits": "Jusqu'à 150 000 DT de financement.",
+    "trust_level": "official",
+    "status": "active"
+  },
+  {
+    "resource_id": "undp_programme_acceleration",
+    "name": "UNDP Tunisie – Programme d'accélération",
+    "provider": "Programme des Nations Unies pour le Développement (PNUD)",
+    "category": "funding",
+    "description": "Finance et accompagne des projets à impact social et environnemental en Tunisie.",
+    "source_url": "https://www.undp.org/fr/tunisia/projets/programme-dacceleration-de-la-mise-en-oeuvre-de-la-contribution-nationale-determinee-tunisienne-2021-2025",
+    "stage_tags": [
+      "validation",
+      "structuration",
+      "fundraising"
+    ],
+    "blocker_domains": [
+      "financier",
+      "organisationnel",
+      "green"
+    ],
+    "eligibility": "Startups et entrepreneurs à impact social ou environnemental.",
+    "benefits": "Financement + accompagnement (variable selon le programme).",
+    "trust_level": "international",
+    "status": "active"
+  },
+  {
+    "resource_id": "afd_facilite_entrepreneuriat",
+    "name": "AFD – Facilité entrepreneuriat",
+    "provider": "Agence Française de Développement (AFD)",
+    "category": "funding",
+    "description": "Soutient des projets économiques en Tunisie via des partenaires locaux (banques, institutions).",
+    "source_url": "https://www.afd.fr/fr/pays-regions/tunisie",
+    "stage_tags": [
+      "structuration",
+      "fundraising",
+      "growth"
+    ],
+    "blocker_domains": [
+      "financier"
+    ],
+    "eligibility": "PME et startups, via institutions financières partenaires de l'AFD.",
+    "benefits": "Lignes de crédit bonifiées via banques partenaires.",
+    "trust_level": "international",
+    "status": "active"
+  },
+  {
+    "resource_id": "microfinance_amc",
+    "name": "Microfinancement – Associations de microcrédits (AMC)",
+    "provider": "Réseau d'AMC, sous supervision de l'Autorité de Contrôle de la Microfinance (ACM)",
+    "category": "funding",
+    "description": "Réseau d'associations de microcrédits autorisées à opérer en Tunisie pour financer les très petits projets.",
+    "source_url": "https://www.bts.com.tn/systeme-des-micro-credits/",
+    "stage_tags": [
+      "ideation",
+      "validation"
+    ],
+    "blocker_domains": [
+      "financier"
+    ],
+    "eligibility": "Personnes sans accès au crédit bancaire classique, micro-entrepreneurs.",
+    "benefits": "Petits montants (jusqu'à quelques milliers de DT).",
+    "trust_level": "official",
+    "status": "active"
+  },
+  {
+    "resource_id": "flat6labs_tunis_accelerateur",
+    "name": "Flat6Labs Tunis – Accélérateur",
+    "provider": "Flat6Labs",
+    "category": "incubation",
+    "description": "Programme d'accélération de startups : financement d'amorçage, mentorat intensif, réseau d'investisseurs régionaux.",
+    "source_url": "https://flat6labs.com/fr/programs-type/accelerator-programs-fr/",
+    "stage_tags": [
+      "validation",
+      "structuration"
+    ],
+    "blocker_domains": [
+      "financier",
+      "organisationnel"
+    ],
+    "eligibility": "Startups early-stage avec MVP ou traction initiale.",
+    "benefits": "Financement d'amorçage + bureau + mentors.",
+    "trust_level": "ecosystem",
+    "status": "active"
+  },
+  {
+    "resource_id": "wikistartup_incubateur",
+    "name": "Wiki Startup – Incubateur",
+    "provider": "Wiki Startup",
+    "category": "incubation",
+    "description": "Incubateur tunisien qui accompagne les startups dans leurs premières phases avec un focus sur le digital et la tech.",
+    "source_url": "https://www.wikistartup.tn",
+    "stage_tags": [
+      "ideation",
+      "validation",
+      "structuration"
+    ],
+    "blocker_domains": [
+      "organisationnel",
+      "technique"
+    ],
+    "eligibility": "Startups et porteurs de projets tech.",
+    "benefits": "Accompagnement, espace de travail, accès réseau.",
+    "trust_level": "ecosystem",
+    "status": "active"
+  },
+  {
+    "resource_id": "conect_reseau_professionnel",
+    "name": "CONECT – Confédération des Entreprises Citoyennes",
+    "provider": "CONECT",
+    "category": "networking",
+    "description": "Organisation patronale tunisienne qui représente les PME et entrepreneurs, offre networking, plaidoyer et information.",
+    "source_url": "https://www.conect.org.tn",
+    "stage_tags": [
+      "ideation",
+      "validation",
+      "structuration",
+      "fundraising",
+      "launch_planning",
+      "growth"
+    ],
+    "blocker_domains": [
+      "organisationnel",
+      "légal"
+    ],
+    "eligibility": "Entreprises et entrepreneurs tunisiens.",
+    "benefits": "Réseau, information, représentation institutionnelle.",
+    "trust_level": "ecosystem",
+    "status": "active"
+  },
+  {
+    "resource_id": "ieee_tunisia_section",
+    "name": "IEEE Tunisia Section",
+    "provider": "IEEE Tunisia Section",
+    "category": "networking",
+    "description": "Réseau de professionnels et étudiants en ingénierie, organisation d'événements tech et innovation.",
+    "source_url": "https://ieee.tn",
+    "stage_tags": [
+      "ideation",
+      "validation"
+    ],
+    "blocker_domains": [
+      "technique",
+      "organisationnel"
+    ],
+    "eligibility": "Ingénieurs, chercheurs, étudiants, startups tech.",
+    "benefits": "Réseau, événements, publications techniques.",
+    "trust_level": "ecosystem",
+    "status": "active"
+  },
+  {
+    "resource_id": "odc_orange_digital_center",
+    "name": "ODC – Orange Digital Center Tunisia",
+    "provider": "Orange Tunisie",
+    "category": "incubation",
+    "description": "Centre numérique offrant formations gratuites au digital, accompagnement de startups, FabLab, et accès à l'écosystème international Orange.",
+    "source_url": "https://formations.orange.tn",
+    "stage_tags": [
+      "ideation",
+      "validation",
+      "structuration"
+    ],
+    "blocker_domains": [
+      "technique",
+      "organisationnel"
+    ],
+    "eligibility": "Jeunes, étudiants, entrepreneurs du digital.",
+    "benefits": "Formations gratuites, FabLab, accompagnement startup.",
+    "trust_level": "ecosystem",
+    "status": "active"
+  },
+  {
+    "resource_id": "apii_guichet_unique",
+    "name": "Création d'entreprise – Guichet unique APII",
+    "provider": "APII",
+    "category": "legal",
+    "description": "Service d'immatriculation simplifié pour les entreprises industrielles, réduisant les délais administratifs.",
+    "source_url": "https://www.tunisieindustrie.nat.tn/fr/doc.asp?mcat=16&mrub=186&msrub=267&dev=true",
+    "stage_tags": [
+      "structuration"
+    ],
+    "blocker_domains": [
+      "légal",
+      "organisationnel"
+    ],
+    "eligibility": "Tout promoteur souhaitant créer une entreprise industrielle.",
+    "benefits": "Simplification administrative.",
+    "trust_level": "official",
+    "status": "active"
+  },
+  {
+    "resource_id": "rne_registre_national",
+    "name": "RNE – Registre National des Entreprises",
+    "provider": "Registre National des Entreprises (RNE)",
+    "category": "legal",
+    "description": "Registre national pour l'immatriculation de toute entreprise tunisienne, obligatoire pour toute structure juridique.",
+    "source_url": "https://home.registre-entreprises.tn",
+    "stage_tags": [
+      "structuration"
+    ],
+    "blocker_domains": [
+      "légal"
+    ],
+    "eligibility": "Tous promoteurs de projets.",
+    "benefits": "Statut légal de l'entreprise.",
+    "trust_level": "official",
+    "status": "active"
+  },
+  {
+    "resource_id": "cepex_promotion_exportations",
+    "name": "CEPEX – Centre de Promotion des Exportations",
+    "provider": "CEPEX",
+    "category": "export",
+    "description": "Organisme gouvernemental aidant les entreprises tunisiennes à s'internationaliser : études de marché, participation à des foires, accompagnement export.",
+    "source_url": "https://www.cepex.nat.tn",
+    "stage_tags": [
+      "growth"
+    ],
+    "blocker_domains": [
+      "marché"
+    ],
+    "eligibility": "Entreprises tunisiennes souhaitant exporter.",
+    "benefits": "Accompagnement export, participation à des foires internationales.",
+    "trust_level": "official",
+    "status": "active"
+  },
+  {
+    "resource_id": "apii_concours_invention",
+    "name": "APII – Concours National de l'Invention",
+    "provider": "APII",
+    "category": "training",
+    "description": "Concours national qui valorise les inventions à fort potentiel et renforce l'écosystème de l'innovation, avec mise en relation recherche-industrie.",
+    "source_url": "https://www.apiiconcours.tn",
+    "stage_tags": [
+      "ideation",
+      "validation"
+    ],
+    "blocker_domains": [
+      "technique",
+      "organisationnel"
+    ],
+    "eligibility": "Inventeurs, PME, industriels, chercheurs.",
+    "benefits": "Prix, visibilité, mise en relation avec industriels.",
+    "trust_level": "official",
+    "status": "active"
+  },
+  {
+    "resource_id": "pnud_acceleration_impact_social",
+    "name": "PNUD Tunisie – Accélération impact social",
+    "provider": "PNUD, en partenariat avec l'APII",
+    "category": "funding",
+    "description": "Programme du PNUD pour accélérer des projets à impact social positif en Tunisie.",
+    "source_url": "https://www.undp.org/tunisia",
+    "stage_tags": [
+      "validation",
+      "structuration",
+      "fundraising"
+    ],
+    "blocker_domains": [
+      "financier",
+      "organisationnel",
+      "green"
+    ],
+    "eligibility": "Entrepreneurs à impact social et environnemental.",
+    "benefits": "Financement + accompagnement + réseau international.",
+    "trust_level": "international",
+    "status": "active"
+  },
+  {
+    "resource_id": "ains_summit_ieee_insat",
+    "name": "AINS – Artificial Intelligence National Summit",
+    "provider": "IEEE INSAT Computer Society",
+    "category": "networking",
+    "description": "Sommet national annuel organisé à Sousse, réunissant professionnels et étudiants autour de l'IA, avec hackathons territoriaux et compétitions de data science.",
+    "source_url": "https://www.webmanagercenter.com/2025/06/12/547488/tunisie-ains-3-0-reunit-professionnels-et-etudiants-autour-de-lia-et-dun-hackathon-territorial",
+    "stage_tags": [
+      "ideation",
+      "validation"
+    ],
+    "blocker_domains": [
+      "technique",
+      "organisationnel"
+    ],
+    "eligibility": "Ingénieurs, étudiants, entrepreneurs tech intéressés par l'IA.",
+    "benefits": "Réseau, événements, hackathons, visibilité.",
+    "trust_level": "ecosystem",
+    "status": "active"
+  },
+  {
+    "resource_id": "fonapra_credit",
+    "name": "Crédit FONAPRA (Fonds National de Promotion de l'Artisanat et des Petits Métiers)",
+    "provider": "Banque Tunisienne de Solidarité (BTS) / Banques commerciales conventionnées",
+    "category": "funding",
+    "description": "Mécanisme de financement pour projets professionnels (artisanat, petits métiers, professions libérales) dont le coût global ne dépasse pas 100 000 DT, fonds de roulement inclus.",
+    "source_url": "https://www.bts.com.tn",
+    "stage_tags": [
+      "ideation",
+      "structuration",
+      "launch_planning"
+    ],
+    "blocker_domains": [
+      "financier"
+    ],
+    "eligibility": "Toute personne physique de nationalité tunisienne, disposant des qualifications adéquates, désirant exercer à plein temps un métier indépendant.",
+    "benefits": "Dotation remboursable sans intérêt (jusqu'à 11 ans dont 7 ans de grâce), prime d'investissement (6% à 25%), et crédit bancaire à moyen terme.",
+    "trust_level": "official",
+    "status": "active"
+  },
+  {
+    "resource_id": "apia_promotion_investissements_agricoles",
+    "name": "APIA – Agence de Promotion des Investissements Agricoles",
+    "provider": "APIA (sous tutelle du Ministère de l'Agriculture, des Ressources Hydrauliques et de la Pêche)",
+    "category": "funding",
+    "description": "Etablissement public qui octroie des avantages financiers et fiscaux aux promoteurs de projets agricoles, de pêche et de première transformation (dont l'huilerie), et les accompagne de l'idée jusqu'au démarrage.",
+    "source_url": "https://www.apia.com.tn",
+    "stage_tags": [
+      "validation",
+      "structuration",
+      "fundraising",
+      "growth"
+    ],
+    "blocker_domains": [
+      "financier",
+      "organisationnel"
+    ],
+    "eligibility": "Promoteurs de projets dans l'agriculture, la pêche, les services associés et la première transformation des produits agricoles et de pêche.",
+    "benefits": "Primes d'investissement, avantages fiscaux, prêts fonciers, assistance au montage du dossier et formation des jeunes promoteurs.",
+    "trust_level": "official",
+    "status": "active"
+  },
+  {
+    "resource_id": "foprodi_fonds_decentralisation_industrielle",
+    "name": "FOPRODI – Fonds de Promotion et de Décentralisation Industrielle",
+    "provider": "APII / banques agréées",
+    "category": "funding",
+    "description": "Fonds destiné à la création d'une nouvelle génération de promoteurs et au développement de PME industrielles, de services liés à l'industrie et d'artisanat, avec un accent sur le développement régional.",
+    "source_url": "http://www.tunisieindustrie.nat.tn/fr/doc.asp?action=showdoc&docid=683",
+    "stage_tags": [
+      "structuration",
+      "launch_planning"
+    ],
+    "blocker_domains": [
+      "financier"
+    ],
+    "eligibility": "Nouveaux promoteurs, personnes physiques de nationalité tunisienne, réalisant leur premier projet d'investissement et ne disposant pas de biens propres suffisants.",
+    "benefits": "Participation ou dotation FOPRODI, prime d'étude et d'assistance technique (jusqu'à 20 000 DT), prime d'investissement de 10% des équipements.",
+    "trust_level": "official",
+    "status": "active"
+  },
+  {
+    "resource_id": "onh_office_national_huile",
+    "name": "ONH – Office National de l'Huile",
+    "provider": "Ministère de l'Agriculture, des Ressources Hydrauliques et de la Pêche",
+    "category": "export",
+    "description": "Etablissement public qui organise la filière huile d'olive tunisienne : encadrement des oléiculteurs, promotion de la qualité, régulation du marché intérieur et développement des exportations.",
+    "source_url": "https://www.onh.com.tn",
+    "stage_tags": [
+      "structuration",
+      "launch_planning",
+      "growth"
+    ],
+    "blocker_domains": [
+      "marché",
+      "technique"
+    ],
+    "eligibility": "Oléiculteurs, huileries et exportateurs d'huile d'olive tunisienne.",
+    "benefits": "Encadrement technique, laboratoires de contrôle qualité agréés, appui à la promotion et à l'exportation de l'huile d'olive tunisienne.",
+    "trust_level": "official",
+    "status": "active"
+  },
+  {
+    "resource_id": "innorpi_normalisation_certification",
+    "name": "INNORPI – Institut National de la Normalisation et de la Propriété Industrielle",
+    "provider": "Ministère de l'Industrie, des Mines et de l'Energie",
+    "category": "certification",
+    "description": "Institut national chargé de la normalisation, de la certification des produits et systèmes qualité, et de la protection de la propriété industrielle (marques, brevets).",
+    "source_url": "https://www.innorpi.tn",
+    "stage_tags": [
+      "structuration",
+      "launch_planning",
+      "growth"
+    ],
+    "blocker_domains": [
+      "technique",
+      "légal",
+      "marché"
+    ],
+    "eligibility": "Toute entreprise tunisienne souhaitant certifier un produit, se conformer à une norme ou protéger une marque ou un brevet.",
+    "benefits": "Certification de conformité, accès aux normes tunisiennes et internationales, dépôt de marques et brevets.",
+    "trust_level": "official",
+    "status": "active"
+  },
+  {
+    "resource_id": "giz_appui_pme_emploi",
+    "name": "GIZ – Partenariats pour l'emploi et l'appui aux PME en Tunisie",
+    "provider": "Deutsche Gesellschaft für Internationale Zusammenarbeit (GIZ)",
+    "category": "funding",
+    "description": "Programme de coopération allemande qui aide les PME et startups tunisiennes à développer leurs investissements, renforcer leurs compétences et adopter des pratiques respectueuses du climat.",
+    "source_url": "https://www.giz.de/en/worldwide/128649.html",
+    "stage_tags": [
+      "structuration",
+      "growth"
+    ],
+    "blocker_domains": [
+      "financier",
+      "organisationnel",
+      "green"
+    ],
+    "eligibility": "PME et startups tunisiennes, en particulier celles à fort potentiel de croissance ou d'impact climatique.",
+    "benefits": "Formation, programme de soutien aux PME orientées croissance, mise en relation avec investisseurs et partenaires.",
+    "trust_level": "international",
+    "status": "active"
+  },
+  {
+    "resource_id": "carthage_business_angels",
+    "name": "Carthage Business Angels (CBA)",
+    "provider": "Carthage Business Angels, association à but non lucratif",
+    "category": "funding",
+    "description": "Premier réseau d'investisseurs providentiels en Tunisie, mettant en relation porteurs de projets innovants et business angels, avec des programmes d'idéation, d'incubation et d'accélération (Start'Act).",
+    "source_url": "https://cba.tn",
+    "stage_tags": [
+      "validation",
+      "structuration",
+      "fundraising"
+    ],
+    "blocker_domains": [
+      "financier",
+      "organisationnel"
+    ],
+    "eligibility": "Porteurs de projets innovants à fort potentiel de croissance, à la recherche de financement en capital.",
+    "benefits": "Mise en relation avec des investisseurs providentiels, accompagnement, accès au programme d'accélération Start'Act.",
+    "trust_level": "ecosystem",
+    "status": "active"
+  },
+  {
+    "resource_id": "utica_organisation_patronale",
+    "name": "UTICA – Union Tunisienne de l'Industrie, du Commerce et de l'Artisanat",
+    "provider": "UTICA",
+    "category": "networking",
+    "description": "Principale organisation patronale tunisienne représentant près de 150 000 entreprises de l'industrie, du commerce et de l'artisanat ; plaidoyer, réseau régional et sectoriel, mise en relation avec les pouvoirs publics.",
+    "source_url": "https://www.utica.org.tn",
+    "stage_tags": [
+      "structuration",
+      "launch_planning",
+      "growth"
+    ],
+    "blocker_domains": [
+      "organisationnel",
+      "légal",
+      "marché"
+    ],
+    "eligibility": "Entreprises et entrepreneurs tunisiens des secteurs de l'industrie, du commerce et de l'artisanat.",
+    "benefits": "Représentation institutionnelle, réseau sectoriel et régional, plaidoyer pour l'environnement des affaires.",
+    "trust_level": "ecosystem",
+    "status": "active"
+  },
+  {
+    "resource_id": "ains_4_0_r_seau_ing_nieurs_sahel",
+    "name": "AINS 4.0 – Réseau ingénieurs Sahel",
+    "provider": "AINS 4.0",
+    "category": "networking",
+    "description": "Association orientée innovation, tech et entrepreneuriat. Co-organisateur hackathon AINS 2026.",
+    "source_url": "https://ieee.tn",
+    "stage_tags": [
+      "ideation",
+      "validation"
+    ],
+    "blocker_domains": [
+      "technique",
+      "organisationnel"
+    ],
+    "eligibility": "Ingénieurs, étudiants, entrepreneurs tech",
+    "benefits": "Réseau, événements, hackathons",
+    "trust_level": "ecosystem",
+    "status": "active"
+  },
+  {
+    "resource_id": "orange_corners_tunisia",
+    "name": "Orange Corners Tunisia",
+    "provider": "Orange Corners",
+    "category": "networking",
+    "description": "Programme d'accompagnement et financement pour entrepreneurs à impact.",
+    "source_url": "https://www.orangecorners.com/country/tunisia/",
+    "stage_tags": [
+      "validation",
+      "structuration",
+      "fundraising"
+    ],
+    "blocker_domains": [
+      "financier",
+      "organisationnel"
+    ],
+    "eligibility": "Entrepreneurs à impact en Tunisie",
+    "benefits": "Jusqu'à €30,000 (30% grant + 70% honour loan) + accompagnement",
+    "trust_level": "ecosystem",
+    "status": "active"
+  },
+  {
+    "resource_id": "216_capital_venture_accelerator",
+    "name": "216 Capital Venture Accelerator",
+    "provider": "216 Capital",
+    "category": "networking",
+    "description": "Accélérateur pour startups tunisiennes avec focus venture.",
+    "source_url": "https://flat6labs.com",
+    "stage_tags": [
+      "fundraising",
+      "growth"
+    ],
+    "blocker_domains": [
+      "financier",
+      "marché"
+    ],
+    "eligibility": "Startups tunisiennes avec traction",
+    "benefits": "Accélération 6 mois, mentorat, financement",
+    "trust_level": "ecosystem",
+    "status": "active"
+  },
+  {
+    "resource_id": "bts_cr_dit_professionnel",
+    "name": "BTS – Crédit Professionnel",
+    "provider": "BTS",
+    "category": "funding",
+    "description": "Crédits pour professionnels et petits métiers via FONAPRA et autres lignes.",
+    "source_url": "https://www.bts.com.tn/credit-professionnel-bts-bank/",
+    "stage_tags": [
+      "structuration",
+      "fundraising"
+    ],
+    "blocker_domains": [
+      "financier"
+    ],
+    "eligibility": "Professionnels tunisiens, projets <150k DT",
+    "benefits": "Financement adapté + primes",
+    "trust_level": "official",
+    "status": "active"
+  },
+  {
+    "resource_id": "innov_i_eu4innovation",
+    "name": "Innov'i – EU4Innovation",
+    "provider": "Expertise France / EU",
+    "category": "incubation",
+    "description": "Soutien à l'écosystème d'innovation et incubation.",
+    "source_url": "https://www.expertisefrance.fr",
+    "stage_tags": [
+      "structuration",
+      "growth"
+    ],
+    "blocker_domains": [
+      "organisationnel",
+      "technique"
+    ],
+    "eligibility": "Structures de soutien et startups innovantes",
+    "benefits": "Financement, renforcement capacités",
+    "trust_level": "international",
+    "status": "active"
+  },
+  {
+    "resource_id": "green4youth",
+    "name": "Green4Youth",
+    "provider": "Flat6Labs / Hivos / IFC",
+    "category": "incubation",
+    "description": "Initiative pour l'empowerment économique des jeunes dans l'économie verte.",
+    "source_url": "https://flat6labs.com",
+    "stage_tags": [
+      "validation",
+      "structuration"
+    ],
+    "blocker_domains": [
+      "green",
+      "financier"
+    ],
+    "eligibility": "Jeunes entrepreneurs en économie verte",
+    "benefits": "Accompagnement, financement vert",
+    "trust_level": "international",
+    "status": "active"
+  },
+  {
+    "resource_id": "founder_institute_tunis",
+    "name": "Founder Institute Tunis",
+    "provider": "Founder Institute",
+    "category": "networking",
+    "description": "Accélérateur global avec programmes locaux à Tunis.",
+    "source_url": "https://fi.co",
+    "stage_tags": [
+      "ideation",
+      "validation",
+      "structuration"
+    ],
+    "blocker_domains": [
+      "organisationnel",
+      "marché"
+    ],
+    "eligibility": "Porteurs de projets et early startups",
+    "benefits": "Formation, mentorat, réseau international",
+    "trust_level": "ecosystem",
+    "status": "active"
+  },
+  {
+    "resource_id": "ebda_y_tunisia",
+    "name": "Ebda’Y Tunisia",
+    "provider": "Flat6Labs / Partenaires",
+    "category": "incubation",
+    "description": "Programme d'empowerment pour femmes entrepreneures.",
+    "source_url": "https://flat6labs.com",
+    "stage_tags": [
+      "ideation",
+      "validation"
+    ],
+    "blocker_domains": [
+      "organisationnel"
+    ],
+    "eligibility": "Femmes entrepreneures tunisiennes",
+    "benefits": "Ateliers, mentorat, networking",
+    "trust_level": "ecosystem",
+    "status": "active"
+  }
+]

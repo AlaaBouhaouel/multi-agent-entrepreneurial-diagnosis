@@ -10,7 +10,6 @@ LANG = [
 # Create your models here.
 class ProjectProfile(models.Model):
     id = models.AutoField(primary_key=True)
-    project_name = models.CharField(max_length=255)
     sector = models.CharField(max_length=120, blank=True, null=True)
     lang_preference = models.CharField(choices=LANG)
     self_assessed_stage = models.PositiveSmallIntegerField(blank=True, null=True)
@@ -18,6 +17,11 @@ class ProjectProfile(models.Model):
     # Validated against projects.schemas.ProjectProfileData before writing.
     # Latest diagnosed stage is read from ProfileLog (author="diagnostic") — not stored here.
     metadata = models.JSONField(default=dict)
+
+    # Latest roadmap snapshot (Feature 3): self-contained {diagnostic, scores,
+    # roadmap, generated_at}. The grounded presenter reads its whole context from
+    # here, and future roadmap animations consume this clean JSON.
+    roadmap = models.JSONField(default=dict, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -50,7 +54,7 @@ class ProfileLog(models.Model):
     metadata = models.JSONField(default=dict, blank=True)
 
     def __str__(self):
-        return f"{self.project.project_name} - {self.author} ({self.output_type})"
+        return f"Project #{self.project_id} - {self.author} ({self.output_type})"
 
     class Meta:
         ordering = ['-timestamp']

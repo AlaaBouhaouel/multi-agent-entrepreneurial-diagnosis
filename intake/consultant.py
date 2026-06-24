@@ -1,4 +1,4 @@
-"""
+﻿"""
 intake/consultant.py
 
 Single LLM call that does both extraction and question generation.
@@ -18,6 +18,7 @@ from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional
 
 from .field_metadata import DERIVED_FIELDS, FIELD_META
+from .pii import llm_pii_mode, pii_for_llm
 from .planner import ANSWERED, EXPLICITLY_UNKNOWN, PENDING, is_eligible
 
 _ALLOWED_EXTRA = {"value_prop_clarity_rating"}
@@ -25,16 +26,16 @@ _ALLOWED_EXTRA = {"value_prop_clarity_rating"}
 # Fields that directly determine or confirm the maturity stage (Phase 1 & 2).
 _CLASSIFIER_FIELDS = frozenset({
     "self_assessed_stage", "gerant",
-    # Stage 1→2 criteria
+    # Stage 1?2 criteria
     "target_customer_defined", "customer_interview_count", "pilot_users", "pre_orders",
     "differentiation_claimed", "idea_is_new", "foreign_model_studied", "team_core_complete",
-    # Stage 2→3 criteria
+    # Stage 2?3 criteria
     "business_model_documented", "product_stage",
-    # Stage 3→4 criteria
+    # Stage 3?4 criteria
     "has_paying_customers", "financial_docs_exist", "rne_registered",
-    # Stage 4→5 criteria
+    # Stage 4?5 criteria
     "funding_secured", "self_financing_confirmed", "distribution_channel_tested",
-    # Stage 5→6 criteria
+    # Stage 5?6 criteria
     "client_base_beyond_pilot", "revenue_recurring_months",
 })
 
@@ -68,11 +69,17 @@ class ConsultResult:
     next_question: Optional[str]   # None only when meta_response is set
 
 
-# ── Prompt ────────────────────────────────────────────────────────────────────
+# -- Prompt --------------------------------------------------------------------
 
 _SYSTEM_PROMPT = """\
 You are the LeadIt Intake Planner — a senior startup consultant conducting a diagnostic discovery \
-interview for an entrepreneurial assessment platform in Tunisia. You speak French.
+interview for an entrepreneurial assessment platform in Tunisia.
+
+## LANGUAGE POLICY
+- You can speak French and Arabic.
+- Always mirror the founder's language from their latest message.
+- If the founder mixes languages, you may reply in the same mixed style.
+- If there is no signal yet (opening turn), ask the first question in Arabic first, then French.
 
 ## PRIMARY OBJECTIVE
 Establish the founder's maturity stage as quickly and accurately as possible.
@@ -85,7 +92,7 @@ and which phase you are in.
 
 ## PHASE 1 — STAGE DISCOVERY  (priorité maximale)
 Goal: Classify the project into one of six stages.
-  IDÉATION → STRUCTURATION → MVP → LEVÉE DE FONDS → ACCÉLÉRATION → CROISSANCE
+  IDÉATION ? STRUCTURATION ? MVP ? LEVÉE DE FONDS ? ACCÉLÉRATION ? CROISSANCE
 
 What to ask:
   - Customer validation: interviews conducted, pilot users, pre-orders.
@@ -107,7 +114,7 @@ Stop Phase 1 when you can confidently name the current stage (typically 8–15 q
 ## PHASE 2 — NEXT STAGE VERIFICATION
 After estimating the stage, probe 2–3 key criteria for the NEXT stage above to see \
 whether the founder already meets them.
-Example: Diagnosed MVP → check has_paying_customers, financial_docs_exist, rne_registered \
+Example: Diagnosed MVP ? check has_paying_customers, financial_docs_exist, rne_registered \
 (Levée de fonds criteria).
 
 ---
@@ -130,39 +137,39 @@ Fields (from context section [DONNÉES FINANCIÈRES]): selling_price, unit_cost,
 fixed_costs, credit needs, etc.
 
 RULES FOR PHASE 4:
-  - Enter Phase 4 ONLY when estimated_stage ≥ 3 (MVP or above).
+  - Enter Phase 4 ONLY when estimated_stage = 3 (MVP or above).
   - NEVER ask financial input details to IDÉATION or STRUCTURATION founders — it wastes the session.
   - Approach with a bridging question: "Avez-vous défini un modèle de prix ?" before unit economics.
-  - If the founder says they have no pricing yet → mark the field explicitly_unknown and move on.
+  - If the founder says they have no pricing yet ? mark the field explicitly_unknown and move on.
 
 ---
 
 ## QUESTION SELECTION ALGORITHM — apply every turn
 1. Read [Profil actuel] — what is already known?
 2. Determine current phase from [Stade estimé] and pending fields by section.
-3. If [CRITÈRES DE MATURITÉ] has pending fields → Phase 1 or 2: ask the most classification-critical question.
-4. If maturity is established + [DONNÉES DE SCORING] has pending fields → Phase 3 question.
-5. If scoring sufficient + estimated_stage ≥ 3 + [DONNÉES FINANCIÈRES] has pending fields → Phase 4 question.
+3. If [CRITÈRES DE MATURITÉ] has pending fields ? Phase 1 or 2: ask the most classification-critical question.
+4. If maturity is established + [DONNÉES DE SCORING] has pending fields ? Phase 3 question.
+5. If scoring sufficient + estimated_stage = 3 + [DONNÉES FINANCIÈRES] has pending fields ? Phase 4 question.
 6. Ask ONE question per turn. Never combine two questions.
 
 ---
 
 ## CORE RULES (every turn)
-- NEVER ask financial inputs (selling_price, unit_cost, costs, credit) if estimated_stage ≤ 2.
+- NEVER ask financial inputs (selling_price, unit_cost, costs, credit) if estimated_stage = 2.
 - NEVER mention field names, schema names, or technical terms to the founder.
 - NEVER stay topic-locked: jump to the next phase as soon as current phase criteria are filled.
 - Stop asking about a topic when you have sufficient evidence — confidence beats completeness.
 - If strong signals already support a field value (e.g. 50+ interviews implies has_validated_problem=True), \
   extract it silently without asking.
-- "je ne sais pas / pas encore / aucune idée / je ne peux pas estimer" → explicitly_unknown.
-- If the founder simply did not mention a field → leave it PENDING. Never set it to explicitly_unknown.
+- "je ne sais pas / pas encore / aucune idée / je ne peux pas estimer" ? explicitly_unknown.
+- If the founder simply did not mention a field ? leave it PENDING. Never set it to explicitly_unknown.
 
 ---
 
 ## META-QUESTIONS
 If the user asks about the process ("pourquoi vous demandez ça ?", "à quoi ça sert", \
-"je ne comprends pas", "répondez-moi d'abord") → \
-set meta_response to a warm, one-sentence French explanation of WHY this matters for their diagnosis. \
+"je ne comprends pas", "répondez-moi d'abord") ? \
+set meta_response to a warm, one-sentence explanation in the founder's language of WHY this matters for their diagnosis. \
 Leave next_question null — the system re-asks the same question automatically.
 
 ---
@@ -170,7 +177,7 @@ Leave next_question null — the system re-asks the same question automatically.
 ## EXTRACTION RULES
 - Extract only what is clearly and explicitly stated — never infer.
 - Boolean: True = clear yes, False = clear no. Omit if ambiguous.
-- Numeric: bare number, no units. Percentages → decimals (30% → 0.30).
+- Numeric: bare number, no units. Percentages ? decimals (30% ? 0.30).
 - List fields: JSON array of strings.
 - When extracting value_proposition_text, also assess clarity 1–5 \
   (1=very vague, 5=crystal-clear: specific value + named customer + named problem) \
@@ -183,7 +190,7 @@ Leave next_question null — the system re-asks the same question automatically.
     "extracted": {"field_name": value, ...},
     "explicitly_unknown": ["field_name", ...],
     "meta_response": null,
-    "next_question": "La prochaine question en français..."
+    "next_question": "The next question in the founder's language..."
 }
 Rules for next_question:
 - Write as a real consultant would — natural, warm, context-aware of the last answer.
@@ -193,13 +200,31 @@ Rules for next_question:
 """
 
 
-# ── Context builders ───────────────────────────────────────────────────────────
+# -- Context builders -----------------------------------------------------------
 
 def _profile_summary(profile: Dict[str, Any]) -> str:
     if not profile:
         return "(aucune information collectée)"
     lines = []
     for k, v in profile.items():
+        lines.append(f"  {k} = {json.dumps(v, ensure_ascii=False)}")
+    return "\n".join(lines)
+
+
+def _profile_summary_for_llm(profile: Dict[str, Any], project_name: str) -> str:
+    enterprise_for_llm = pii_for_llm(project_name)
+    gerant_for_llm = pii_for_llm(profile.get("gerant")) if profile.get("gerant") is not None else None
+
+    lines = [
+        f"  enterprise_name = {json.dumps(enterprise_for_llm, ensure_ascii=False)}",
+        f"  gerant = {json.dumps(gerant_for_llm, ensure_ascii=False)}",
+    ]
+    if not profile:
+        return "\n".join(lines + ["  (aucune autre information collectee)"])
+
+    for k, v in profile.items():
+        if k == "gerant":
+            continue
         lines.append(f"  {k} = {json.dumps(v, ensure_ascii=False)}")
     return "\n".join(lines)
 
@@ -247,9 +272,10 @@ def _recent_history(history: List[Dict[str, str]], n_turns: int = 4) -> str:
     return "\n".join(lines)
 
 
-# ── Main function ──────────────────────────────────────────────────────────────
+# -- Main function --------------------------------------------------------------
 
 def consult(
+    project_name: str,
     profile: Dict[str, Any],
     field_states: Dict[str, str],
     estimated_stage: int,
@@ -265,7 +291,7 @@ def consult(
     When last_user_message is None (session start), extraction is skipped
     and only the opening question is generated.
     """
-    profile_text = _profile_summary(profile)
+    profile_text = _profile_summary_for_llm(profile, project_name)
     history_text = _recent_history(conversation_history)
 
     stage_label = _STAGE_NAMES.get(estimated_stage, f"stade {estimated_stage}")
@@ -290,8 +316,13 @@ def consult(
     )
 
     stage_block = (
-        f"[Stade estimé : {stage_label}  →  prochain stade à vérifier : {next_label}]\n"
+        f"[Stade estimé : {stage_label}  ?  prochain stade à vérifier : {next_label}]\n"
         f"(estimated_stage = {estimated_stage})"
+    )
+    pii_block = (
+        "[Visibilite PII LLM]\n"
+        f"- enterprise_name et gerant sont fournis en mode: {llm_pii_mode()}.\n"
+        "- Si les valeurs commencent par enc:v1:, traitez-les comme identifiants opaques."
     )
 
     contradiction_block = ""
@@ -300,7 +331,7 @@ def consult(
         for c in contradictions:
             lines.append(f"  - {c['field']}: était «{c['old']}», maintenant «{c['new']}»")
         contradiction_block = (
-            "\n[⚠ CONTRADICTIONS DÉTECTÉES — valider avec le fondateur]\n"
+            "\n[? CONTRADICTIONS DÉTECTÉES — valider avec le fondateur]\n"
             + "\n".join(lines)
             + "\nRègle : intégrez une courte confirmation naturelle dans next_question "
             "(ex: «Vous m'aviez mentionné X — je note Y, c'est bien ça ?»), "
@@ -310,10 +341,11 @@ def consult(
     if last_user_message is None:
         user_content = (
             f"[Profil actuel]\n{profile_text}\n\n"
+            f"{pii_block}\n\n"
             f"{stage_block}\n\n"
             f"[CRITÈRES DE MATURITÉ EN ATTENTE — Phase 1 & 2]\n{maturity_fields}\n\n"
             f"[DONNÉES DE SCORING EN ATTENTE — Phase 3]\n{scoring_fields}\n\n"
-            f"[DONNÉES FINANCIÈRES EN ATTENTE — Phase 4, stade ≥ MVP uniquement]\n{financial_fields}\n\n"
+            f"[DONNÉES FINANCIÈRES EN ATTENTE — Phase 4, stade = MVP uniquement]\n{financial_fields}\n\n"
             "[Début de l'entretien]\n"
             "Ouvrez par une question naturelle et ouverte sur le porteur du projet et son équipe : "
             "qui sont-ils, quelles compétences apportent-ils, quelle est leur expérience entrepreneuriale. "
@@ -324,10 +356,11 @@ def consult(
     else:
         user_content = (
             f"[Profil actuel]\n{profile_text}\n\n"
+            f"{pii_block}\n\n"
             f"{stage_block}\n\n"
             f"[CRITÈRES DE MATURITÉ EN ATTENTE — Phase 1 & 2]\n{maturity_fields}\n\n"
             f"[DONNÉES DE SCORING EN ATTENTE — Phase 3]\n{scoring_fields}\n\n"
-            f"[DONNÉES FINANCIÈRES EN ATTENTE — Phase 4, stade ≥ MVP uniquement]\n{financial_fields}\n"
+            f"[DONNÉES FINANCIÈRES EN ATTENTE — Phase 4, stade = MVP uniquement]\n{financial_fields}\n"
             f"{contradiction_block}\n"
             f"[Échanges récents]\n{history_text}\n\n"
             f"[Dernière réponse du fondateur]\n{last_user_message}"
@@ -359,3 +392,5 @@ def _parse(raw: str) -> ConsultResult:
         meta_response=data.get("meta_response") or None,
         next_question=data.get("next_question") or None,
     )
+
+

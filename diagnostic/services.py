@@ -3,7 +3,7 @@ from criteria.criteria_nested import (
     get_stage_criteria, is_leaf, STAGE_ORDER, BLOCKER_DOMAINS,
     get_stage_index, stage_name_to_int,
 )
-from calculations import _get_profile_value, _to_float, _is_truthy
+from diagnostic.calculations import _get_profile_value, _to_float, _is_truthy
 from datetime import datetime, timezone
 
 

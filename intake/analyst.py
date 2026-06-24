@@ -20,6 +20,8 @@ import sys
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, Optional
 
+from .pii import llm_pii_mode, pii_for_llm
+
 
 # ── Stage labels ───────────────────────────────────────────────────────────────
 
@@ -135,10 +137,15 @@ def _fmt_score(result: Optional[Dict]) -> str:
     return f"{s:.1f}/10{flag}"
 
 
-def build_context(profile: Dict[str, Any], analysis: Dict[str, Any]) -> str:
+def build_context(profile: Dict[str, Any], analysis: Dict[str, Any], project_name: str = "Projet") -> str:
     """Build a rich plaintext briefing for the analyst LLM."""
     lines = ["## PROFIL COLLECTÉ"]
+    lines.append(" Le nom de l' Entreprise est anonyme ")
+    lines.append(" Le nom du gerant est anonyme ")
+    lines.append(f"  pii_mode = {llm_pii_mode()}")
     for k, v in profile.items():
+        if k == "gerant":
+            continue
         lines.append(f"  {k} = {json.dumps(v, ensure_ascii=False)}")
 
     stage_fr = _STAGE_FR.get(analysis["assigned_stage"], analysis["assigned_stage"])
@@ -172,7 +179,7 @@ def build_context(profile: Dict[str, Any], analysis: Dict[str, Any]) -> str:
         "",
         "## SCORES DE SANTÉ (0–10)",
     ]
-    for dim, label in _DIM_FR.items():
+    for dim, label in _DIM_FR.items(): #explain each score, its weight  and its sub criteria if there is.
         lines.append(f"  {label:<22}: {_fmt_score(scores.get(dim))}")
 
     lines += [
@@ -187,6 +194,12 @@ def build_context(profile: Dict[str, Any], analysis: Dict[str, Any]) -> str:
         v = metrics.get(k)
         if v is not None:
             lines.append(f"  {k} = {v}")
+    lines += [
+        "",
+        "## ROADMAP",
+    ]
+
+    #retrieve the results of the roadmap 
 
     lines += [
         "",
@@ -253,9 +266,10 @@ class AnalystSession:
         profile: Dict[str, Any],
         analysis: Dict[str, Any],
         call_llm: Callable[[List[Dict[str, str]]], str],
+        project_name: str = "Projet",
     ) -> None:
         self._call_llm = call_llm
-        self._context  = build_context(profile, analysis)
+        self._context  = build_context(profile, analysis, project_name=project_name)
         self._history: List[Dict[str, str]] = []
 
     def present(self) -> str:

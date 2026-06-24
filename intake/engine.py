@@ -89,6 +89,7 @@ class IntakeEngine:
     def start(self) -> str:
         """Generate and return the opening question. Call once before the loop."""
         result = consult(
+            project_name=self.state.project_name,
             profile=self.state.profile,
             field_states=self.state.field_states,
             estimated_stage=self.state.estimated_stage,
@@ -96,7 +97,7 @@ class IntakeEngine:
             last_user_message=None,
             call_llm=self._call_llm,
         )
-        question = result.next_question or "Pouvez-vous me parler de votre projet ?"
+        question = result.next_question or "حدثني عن مشروعك وفريقك؟ / Pouvez-vous me parler de votre projet et de votre équipe ?"
         self.state.current_question = question
         self.state.history.append({"role": "assistant", "content": question})
         return question
@@ -110,6 +111,7 @@ class IntakeEngine:
         self.state.history.append({"role": "user", "content": user_message})
 
         result = consult(
+            project_name=self.state.project_name,
             profile=self.state.profile,
             field_states=self.state.field_states,
             estimated_stage=self.state.estimated_stage,
@@ -128,6 +130,7 @@ class IntakeEngine:
         # Extractions are authoritative from the first call; only the question is replaced.
         if self.state.contradictions:
             followup = consult(
+                project_name=self.state.project_name,
                 profile=self.state.profile,
                 field_states=self.state.field_states,
                 estimated_stage=self.state.estimated_stage,
@@ -226,16 +229,10 @@ class IntakeEngine:
             self.state.estimated_stage = stage
 
     def _compute_derived(self) -> None:
-        p = self.state.profile
-        interviews = p.get("customer_interview_count")
-        pilots = p.get("pilot_users")
-        preorders = p.get("pre_orders")
-        if any(isinstance(v, int) and v > 0 for v in (interviews, pilots, preorders)):
-            p["has_validated_problem"] = True
-            self.state.field_states["has_validated_problem"] = ANSWERED
-        elif all(v is not None for v in (interviews, pilots, preorders)):
-            p["has_validated_problem"] = False
-            self.state.field_states["has_validated_problem"] = ANSWERED
+        # No derived fields. Demand validation is read directly from
+        # customer_interview_count / pilot_users / pre_orders / validation_type;
+        # the old has_validated_problem summary flag was removed.
+        return
 
     def _stats(self) -> Dict[str, int]:
         return completion_stats(

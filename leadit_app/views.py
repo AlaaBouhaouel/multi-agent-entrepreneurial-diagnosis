@@ -5,6 +5,8 @@ import sys
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.contrib.auth import logout
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if BASE_DIR not in sys.path:
@@ -25,11 +27,30 @@ _SCORE_AUTHOR = {
 _anthropic_client = None
 
 
+def _resolve_anthropic_api_key():
+    """
+    Resolve Anthropic key from common env var names.
+    Returns a stripped key or None.
+    """
+    for env_name in ('API_KEY_CLAUDE', 'ANTHROPIC_API_KEY', 'API_KEY'):
+        value = os.getenv(env_name)
+        if value:
+            cleaned = value.strip().strip('"').strip("'")
+            if cleaned:
+                return cleaned
+    return None
+
+
 def _get_client():
     global _anthropic_client
     if _anthropic_client is None:
         from anthropic import Anthropic
-        _anthropic_client = Anthropic(api_key=os.getenv('API_KEY_CLAUDE'))
+        api_key = _resolve_anthropic_api_key()
+        if not api_key:
+            raise RuntimeError(
+                'Anthropic API key missing. Set API_KEY_CLAUDE or ANTHROPIC_API_KEY in your .env file.'
+            )
+        _anthropic_client = Anthropic(api_key=api_key)
     return _anthropic_client
 
 
@@ -96,7 +117,6 @@ def _upsert_profile(session, profile: dict):
 
     # First time — create the row
     p = ProjectProfile.objects.create(
-        project_name=session.get('intake_project_name', 'Projet'),
         lang_preference='fr',
         self_assessed_stage=valid_sas,
         metadata=metadata,
@@ -119,7 +139,6 @@ def _write_analysis_logs(project, analysis: dict) -> None:
             'confidence':      analysis['confidence'],
             'perception_gap':  analysis['perception_gap'],
             'blockers':        analysis['blockers'],
-            'failed_criteria': analysis['failed_criteria'][:20],
         },
     )
 
@@ -130,6 +149,76 @@ def _write_analysis_logs(project, analysis: dict) -> None:
             output_type=f'score.{dim}',
             metadata=result,
         )
+
+
+def _analysis_payload_for_frontend(analysis: dict, presentation: str = "", roadmap_data=None) -> dict:
+    def _score_payload(res: dict) -> dict:
+        leaves_in = res.get('leaves') or []
+        leaves_out = []
+        total_weight = 0.0
+        scored_weight = 0.0
+        weighted_sum = 0.0
+
+        for leaf in leaves_in:
+            weight = float(leaf.get('weight') or 0.0)
+            score = leaf.get('score')
+            total_weight += weight
+            if score is not None:
+                s = float(score)
+                scored_weight += weight
+                weighted_sum += s * weight
+            leaves_out.append({
+                'criterion': leaf.get('criterion'),
+                'label': leaf.get('label_fr'),
+                'weight': weight,
+                'score': score,
+            })
+
+        weighted_score = None if scored_weight == 0 else round(weighted_sum / scored_weight, 2)
+        floor = res.get('floor')
+        return {
+            'score': res.get('score'),
+            'floor': floor,
+            'floor_met': res.get('floor_met'),
+            'leaves': leaves_out,
+            'calc': {
+                'weighted_sum': round(weighted_sum, 4),
+                'scored_weight': round(scored_weight, 4),
+                'total_weight': round(total_weight, 4),
+                'weighted_score': weighted_score,
+                'floor_delta': None if (weighted_score is None or floor is None) else round(weighted_score - float(floor), 2),
+            },
+        }
+
+    scores_out = {
+        dim: _score_payload(res)
+        for dim, res in analysis.get('scores', {}).items()
+    }
+    metrics_in = analysis.get('metrics', {})
+    return {
+        'presentation':   presentation,
+        'assigned_stage': analysis.get('assigned_stage'),
+        'stopped_at':     analysis.get('stopped_at'),
+        'confidence':     analysis.get('confidence'),
+        'perception_gap': analysis.get('perception_gap'),
+        'blockers':       analysis.get('blockers', {}).get('ranked_domains', []),
+        'scores':         scores_out,
+        'roadmap':        roadmap_data,
+        'metrics': {
+            k: v for k, v in metrics_in.items()
+            if k in ('gross_margin_percentage', 'monthly_profit', 'breakeven_months',
+                     'van_5_years', 'credit_eligibility_path', 'opex_months_covered')
+        },
+    }
+
+
+def _first_assistant_message(messages) -> str:
+    if not isinstance(messages, list):
+        return ""
+    for msg in messages:
+        if isinstance(msg, dict) and msg.get('role') == 'assistant' and msg.get('content'):
+            return str(msg['content'])
+    return ""
 
 
 # ── Session helpers ────────────────────────────────────────────────────────────
@@ -170,8 +259,58 @@ def _restore_engine(session):
 
 # ── Views ──────────────────────────────────────────────────────────────────────
 
+@ensure_csrf_cookie
 def index(request):
-    return render(request, 'index.html')
+    intake_history = request.session.get('intake_history', [])
+    intake_profile = request.session.get('intake_profile', {})
+    project_name = request.session.get('intake_project_name', 'Nouveau diagnostic')
+    analysis = request.session.get('analysis_result')
+    analyst_history = request.session.get('analyst_history', [])
+
+    stats = None
+    if request.session.get('intake_field_states') is not None:
+        try:
+            stats = _restore_engine(request.session)._stats()
+        except Exception:
+            stats = None
+
+    analysis_payload = None
+    roadmap_data = None
+    project_id = request.session.get('project_db_id')
+    if project_id:
+        try:
+            from projects.models import ProjectProfile
+            p = ProjectProfile.objects.get(id=project_id)
+            snap = p.roadmap or {}
+            roadmap_data = snap.get('roadmap') if isinstance(snap, dict) else None
+        except Exception:
+            roadmap_data = None
+    if analysis:
+        analysis_payload = _analysis_payload_for_frontend(
+            analysis,
+            presentation=_first_assistant_message(analyst_history),
+            roadmap_data=roadmap_data,
+        )
+
+    bootstrap_data = {
+        'project_name': project_name,
+        'intake_history': intake_history,
+        'intake_profile': intake_profile,
+        'stats': stats,
+        'analysis': analysis_payload,
+    }
+    return render(request, 'index.html', {'bootstrap_data': bootstrap_data})
+
+
+def logout_view(request):
+    if request.method == 'POST':
+        logout(request)
+        return render(request, 'registration/logged_out.html')
+    return render(request, 'registration/logout.html')
+
+
+def logged_out(request):
+    return render(request, 'registration/logged_out.html')
 
 
 @require_POST
@@ -182,8 +321,28 @@ def session_start(request):
     from intake import IntakeEngine
     from projects.models import ProjectProfile
 
-    engine = IntakeEngine(project_name=project_name, call_llm=call_llm)
-    question = engine.start()
+    try:
+        engine = IntakeEngine(project_name=project_name, call_llm=call_llm)
+        question = engine.start()
+    except Exception as exc:
+        message = str(exc)
+        auth_error = (
+            'authentication method' in message.lower()
+            or 'api key' in message.lower()
+            or 'auth_token' in message.lower()
+        )
+        if auth_error:
+            return JsonResponse(
+                {
+                    'error': 'llm_auth_missing',
+                    'detail': (
+                        'Anthropic authentication is not configured. '
+                        'Set API_KEY_CLAUDE or ANTHROPIC_API_KEY in .env and restart the server.'
+                    ),
+                },
+                status=503,
+            )
+        raise
 
     _save_engine(request.session, engine)
     request.session['analysis_result'] = None
@@ -191,7 +350,6 @@ def session_start(request):
 
     # Create the DB row immediately — even an abandoned session has a record.
     p = ProjectProfile.objects.create(
-        project_name=project_name,
         lang_preference='fr',
         metadata={},
     )
@@ -208,7 +366,27 @@ def session_message(request):
         return JsonResponse({'error': 'empty'}, status=400)
 
     engine = _restore_engine(request.session)
-    result = engine.respond(message)
+    try:
+        result = engine.respond(message)
+    except Exception as exc:
+        message_text = str(exc)
+        auth_error = (
+            'authentication method' in message_text.lower()
+            or 'api key' in message_text.lower()
+            or 'auth_token' in message_text.lower()
+        )
+        if auth_error:
+            return JsonResponse(
+                {
+                    'error': 'llm_auth_missing',
+                    'detail': (
+                        'Anthropic authentication is not configured. '
+                        'Set API_KEY_CLAUDE or ANTHROPIC_API_KEY in .env and restart the server.'
+                    ),
+                },
+                status=503,
+            )
+        raise
     _save_engine(request.session, engine)
 
     # Persist to DB on every turn that learned something new.
@@ -240,43 +418,29 @@ def analysis_start(request):
     except Exception as exc:
         return JsonResponse({'error': str(exc)}, status=500)
 
-    analyst = AnalystSession(profile, analysis, call_llm)
+    analyst = AnalystSession(
+        profile,
+        analysis,
+        call_llm,
+        project_name=request.session.get('intake_project_name', 'Projet'),
+    )
     presentation = analyst.present()
 
     request.session['analysis_result'] = analysis
     request.session['analyst_history'] = analyst._history
 
+    roadmap_data = None
     # Persist final profile state + write all engine logs.
     try:
         project = _upsert_profile(request.session, profile)
         _write_analysis_logs(project, analysis)
+        snap = project.roadmap or {}
+        if isinstance(snap, dict):
+            roadmap_data = snap.get('roadmap')
     except Exception:
         pass  # DB failure must not break the response
 
-    scores_out = {
-        dim: {'score': res.get('score'), 'floor_met': res.get('floor_met')}
-        for dim, res in analysis['scores'].items()
-    }
-    failed_out = [
-        {'criterion': f['criterion'], 'stage': f['stage'], 'value': f['value']}
-        for f in analysis['failed_criteria'][:10]
-    ]
-
-    return JsonResponse({
-        'presentation':   presentation,
-        'assigned_stage': analysis['assigned_stage'],
-        'stopped_at':     analysis['stopped_at'],
-        'confidence':     analysis['confidence'],
-        'perception_gap': analysis['perception_gap'],
-        'blockers':       analysis['blockers']['ranked_domains'],
-        'scores':         scores_out,
-        'failed_criteria': failed_out,
-        'metrics': {
-            k: v for k, v in analysis['metrics'].items()
-            if k in ('gross_margin_percentage', 'monthly_profit', 'breakeven_months',
-                     'van_5_years', 'credit_eligibility_path', 'opex_months_covered')
-        },
-    })
+    return JsonResponse(_analysis_payload_for_frontend(analysis, presentation=presentation, roadmap_data=roadmap_data))
 
 
 @require_POST
@@ -292,7 +456,12 @@ def analysis_ask(request):
         return JsonResponse({'error': 'no analysis'}, status=400)
 
     from intake.analyst import AnalystSession
-    analyst = AnalystSession(profile, analysis, call_llm)
+    analyst = AnalystSession(
+        profile,
+        analysis,
+        call_llm,
+        project_name=request.session.get('intake_project_name', 'Projet'),
+    )
     analyst._history = request.session.get('analyst_history', [])
 
     answer = analyst.ask(question)

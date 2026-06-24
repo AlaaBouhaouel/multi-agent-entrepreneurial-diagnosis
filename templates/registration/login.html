@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leadit — Accès</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Inter:wght@300;400;500;600&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#C6A15B;--gold-bright:#E3C485;--fd:'Fraunces',Georgia,serif;--fb:'Inter',system-ui,sans-serif;--fm:'Spline Sans Mono',monospace;--r:4px;--tf:.2s;--t:.45s cubic-bezier(.16,1,.3,1)}
+:root[data-theme="dark"]{--void:#0A0A0B;--carbon:#101012;--carbon-2:#15151A;--steel:#1C1D22;--ink:#F2EFE9;--t1:#D8D5CE;--t2:#8E8B85;--t3:#56544F;--line:rgba(255,255,255,.06);--line-2:rgba(255,255,255,.035);--line-gold:rgba(198,161,91,.28);--instrument:#0C0C0E;--red:#B5685F}
+:root[data-theme="light"]{--void:#E8E5DE;--carbon:#F4F1EA;--carbon-2:#EEEAE1;--steel:#E6E2D8;--ink:#1A1815;--t1:#33302A;--t2:#6B665C;--t3:#A29C8E;--line:rgba(26,24,21,.10);--line-2:rgba(26,24,21,.05);--line-gold:rgba(138,111,56,.34);--instrument:#F7F4ED;--red:#9c5249;--gold:#8A6F38;--gold-bright:#A6863F}
+html,body{height:100%;background:var(--void);color:var(--t1);font-family:var(--fb);font-weight:400;font-size:15px;line-height:1.55;overflow:hidden;transition:background var(--t),color var(--t);-webkit-font-smoothing:antialiased}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.012) 0 1px,transparent 1px 3px),repeating-linear-gradient(-45deg,rgba(255,255,255,.012) 0 1px,transparent 1px 3px)}
+:root[data-theme="light"] body::before{opacity:.4;background-image:repeating-linear-gradient(45deg,rgba(0,0,0,.014) 0 1px,transparent 1px 3px),repeating-linear-gradient(-45deg,rgba(0,0,0,.014) 0 1px,transparent 1px 3px)}
+button{cursor:pointer;font-family:inherit;border:none;background:none;color:inherit}input{font-family:inherit}
+:focus-visible{outline:1px solid var(--gold);outline-offset:2px}
+.stage{position:relative;z-index:1;display:grid;grid-template-columns:1.1fr .9fr;height:100vh}
+@media(max-width:880px){.stage{grid-template-columns:1fr}.poster{display:none!important}}
+
+/* poster — the skeleton dial as hero */
+.poster{position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;padding:52px;border-right:1px solid var(--line);background:linear-gradient(160deg,var(--carbon),var(--void))}
+.poster::after{content:'';position:absolute;right:0;top:0;bottom:0;width:1px;background:linear-gradient(180deg,transparent,var(--line-gold) 25%,var(--line-gold) 75%,transparent)}
+.p-top{position:relative;display:flex;align-items:baseline}
+.p-top .w{font-family:var(--fd);font-weight:400;font-size:28px;letter-spacing:.06em;color:var(--ink)}
+.p-top .d{width:5px;height:5px;border-radius:50%;background:var(--gold);margin-left:4px;align-self:flex-end;margin-bottom:8px;box-shadow:0 0 8px var(--gold)}
+.p-mid{position:relative}
+.p-mid .eyebrow{font-family:var(--fm);font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-bottom:20px}
+.p-mid h1{font-family:var(--fd);font-weight:300;font-size:42px;line-height:1.12;color:var(--ink);letter-spacing:.01em;max-width:13ch}
+.p-mid h1 em{font-style:italic;color:var(--gold)}
+.p-mid p{color:var(--t2);font-weight:300;font-size:14px;margin-top:18px;max-width:36ch;line-height:1.7}
+.dial{position:absolute;right:-60px;top:8%;width:280px;height:280px;opacity:.85}
+.p-foot{position:relative;display:flex;gap:34px}
+.p-foot .s .n{font-family:var(--fm);font-size:22px;font-weight:500;color:var(--gold)}
+.p-foot .s .l{font-family:var(--fm);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--t3);margin-top:4px}
+
+/* form */
+.formside{display:flex;align-items:center;justify-content:center;padding:34px;position:relative}
+.theme-toggle{position:absolute;top:26px;right:26px;width:38px;height:38px;border-radius:var(--r);border:1px solid var(--line);color:var(--t2);display:grid;place-content:center;transition:color var(--tf),border-color var(--tf)}
+.theme-toggle:hover{color:var(--gold);border-color:var(--line-gold)}
+.theme-toggle .sun{display:none}:root[data-theme="light"] .theme-toggle .sun{display:block}:root[data-theme="light"] .theme-toggle .moon{display:none}
+.card{width:380px;max-width:100%;animation:in .55s cubic-bezier(.16,1,.3,1) both}
+@keyframes in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.card .eyebrow{font-family:var(--fm);font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+.card h2{font-family:var(--fd);font-weight:300;font-size:30px;letter-spacing:.01em;color:var(--ink)}
+.card .sub{font-size:13.5px;font-weight:300;color:var(--t2);margin:8px 0 30px}
+.field{margin-bottom:18px}
+.field label{display:block;font-family:var(--fm);font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--t2);margin-bottom:9px}
+.wrap{position:relative}
+.input{width:100%;background:var(--carbon);border:1px solid var(--line);border-radius:var(--r);padding:13px 16px;color:var(--t1);font-size:15px;font-weight:300;outline:none;transition:border-color var(--tf)}
+.input::placeholder{color:var(--t3)}.input:focus{border-color:var(--line-gold)}
+.input.bad{border-color:var(--red)}
+.pw-tog{position:absolute;right:7px;top:50%;transform:translateY(-50%);font-family:var(--fm);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);padding:7px 11px;border-radius:var(--r);transition:color var(--tf)}
+.pw-tog:hover{color:var(--gold)}
+.row{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px}
+.remember{display:flex;align-items:center;gap:9px;font-size:12.5px;font-weight:300;color:var(--t2);cursor:pointer;user-select:none}
+.remember input{appearance:none;width:16px;height:16px;border-radius:3px;border:1px solid var(--line);background:var(--carbon);display:grid;place-content:center;cursor:pointer}
+.remember input:checked{background:var(--gold);border-color:var(--gold)}
+.remember input:checked::after{content:'✓';font-size:10px;color:var(--void);font-weight:700}
+.forgot{font-size:12.5px;color:var(--gold);text-decoration:none}.forgot:hover{color:var(--gold-bright)}
+.btn{width:100%;padding:14px;border-radius:30px;background:var(--gold);color:var(--void);font-family:var(--fm);font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;transition:background var(--tf),transform .1s}
+.btn:hover{background:var(--gold-bright)}.btn:active{transform:scale(.99)}
+.div{display:flex;align-items:center;gap:14px;margin:22px 0;color:var(--t3);font-family:var(--fm);font-size:10px;letter-spacing:.16em;text-transform:uppercase}
+.div::before,.div::after{content:'';flex:1;height:1px;background:var(--line)}
+.btn-ghost{width:100%;padding:13px;background:transparent;border:1px solid var(--line);border-radius:30px;color:var(--t1);font-family:var(--fm);font-size:11px;letter-spacing:.12em;text-transform:uppercase;transition:border-color var(--tf),color var(--tf)}
+.btn-ghost:hover{border-color:var(--line-gold);color:var(--gold)}
+.note{font-size:12px;font-weight:300;color:var(--t3);text-align:center;margin-top:26px}
+.note a{color:var(--gold);text-decoration:none}
+@media(prefers-reduced-motion:reduce){.card{animation:none}}
+</style>
+</head>
+<body>
+<div class="stage">
+  <aside class="poster">
+    <div class="p-top"><span class="w">Leadit</span><span class="d"></span></div>
+    <div class="p-mid">
+      <svg class="dial" viewBox="0 0 200 200">
+        <g fill="none" stroke="rgba(198,161,91,.22)" stroke-width=".8">
+          <polygon points="100,30 159,72 137,142 63,142 41,72"/>
+          <polygon points="100,58 135,83 122,124 78,124 65,83"/>
+          <line x1="100" y1="100" x2="100" y2="30"/><line x1="100" y1="100" x2="159" y2="72"/><line x1="100" y1="100" x2="137" y2="142"/><line x1="100" y1="100" x2="63" y2="142"/><line x1="100" y1="100" x2="41" y2="72"/>
+        </g>
+        <polygon points="100,46 148,80 119,134 72,128 56,86" fill="rgba(198,161,91,.08)" stroke="#C6A15B" stroke-width="1.4"/>
+        <circle cx="100" cy="100" r="2.5" fill="none" stroke="rgba(198,161,91,.4)"/><circle cx="100" cy="100" r="1" fill="#C6A15B"/>
+      </svg>
+      <div class="eyebrow">Diagnostic d'entreprise</div>
+      <h1>Là où votre projet en est <em>vraiment</em>.</h1>
+      <p>Maturité, scoring multi-dimensionnel et orientation — un instrument de précision pour l'entrepreneuriat tunisien.</p>
+    </div>
+    <div class="p-foot">
+      <div class="s"><div class="n">VI</div><div class="l">Stades</div></div>
+      <div class="s"><div class="n">V</div><div class="l">Dimensions</div></div>
+      <div class="s"><div class="n">RAG</div><div class="l">Sourcé</div></div>
+    </div>
+  </aside>
+
+  <main class="formside">
+    <button class="theme-toggle" id="theme-toggle" aria-label="Thème" type="button"><span class="moon">&#9789;</span><span class="sun">&#9728;</span></button>
+    <div class="card">
+      <div class="eyebrow">Espace entrepreneur</div>
+      <h2>Bon retour</h2>
+      <p class="sub">Connectez-vous pour reprendre votre diagnostic.</p>
+      {% if form.errors %}
+      <p class="error" style="color:var(--red);font-size:13px;margin-bottom:18px">Identifiant ou mot de passe invalide.</p>
+      {% endif %}
+      <form method="post" id="form" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}">
+        <div class="field">
+          <label for="id_username">Identifiant</label>
+          <div class="wrap"><input class="input" id="id_username" name="username" type="text" autocomplete="username" autofocus></div>
+        </div>
+        <div class="field">
+          <label for="id_password">Mot de passe</label>
+          <div class="wrap">
+            <input class="input" id="id_password" name="password" type="password" autocomplete="current-password">
+            <button class="pw-tog" id="pw-tog" type="button">Voir</button>
+          </div>
+        </div>
+        <div class="row"><label class="remember"><input type="checkbox" name="remember"> Rester connecté</label></div>
+        <button class="btn" type="submit">Se connecter</button>
+      </form>
+    </div>
+  </main>
+</div>
+<script>
+const root=document.documentElement;
+document.getElementById('theme-toggle').onclick=()=>root.dataset.theme=root.dataset.theme==='light'?'dark':'light';
+// Password visibility toggle — wired to the real password input. No form
+// interception: the form submits natively so Django receives the CSRF token.
+const pw=document.getElementById('id_password'),pwTog=document.getElementById('pw-tog');
+pwTog.onclick=()=>{const show=pw.type==='password';pw.type=show?'text':'password';pwTog.textContent=show?'Masquer':'Voir';};
+</script>
+</body>
+</html>
+
+

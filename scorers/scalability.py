@@ -82,29 +82,20 @@ def _volume_headroom(profile: Any, metrics: Dict[str, Any]) -> Dict[str, Any]:
 
 def _team_depth(profile: Any) -> Dict[str, Any]:
     core_complete = _is_truthy(_get_profile_value(profile, "team_core_complete"))
-    associes      = _get_profile_value(profile, "associes") or []
-    if not isinstance(associes, list):
-        associes = []
-    n = len(associes)
-
     score: Optional[float]
     if core_complete is None:
         score = None
-    elif core_complete is True and n >= 2:
-        score = 10.0
     elif core_complete is True:
-        score = 7.0
-    elif n >= 2:
-        score = 5.0
+        score = 10.0
     else:
-        score = 2.0
+        score = 3.0   # founder solo / key roles uncovered — scaling risk
     return leaf(
         criterion    = "team_depth",
         label_fr     = "Profondeur de l'équipe",
         score        = score,
         weight       = 0.25,
-        evidence     = {"team_core_complete": core_complete, "associes_count": n},
-        justification = f"core_complete={core_complete}, associes={n} → score {score}",
+        evidence     = {"team_core_complete": core_complete},
+        justification = f"core_complete={core_complete} → score {score}",
     )
 
 
