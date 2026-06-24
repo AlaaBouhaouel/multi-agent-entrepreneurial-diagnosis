@@ -398,6 +398,11 @@ const root=document.documentElement;
 document.getElementById('theme-toggle').onclick=()=>{root.dataset.theme=root.dataset.theme==='light'?'dark':'light';drawRadar();};
 
 const ST={done:false,analyzing:false,radarTick:0,fieldsExpanded:false,answered:0,diagnosed:[0,0,0,0,0],perceived:[0,0,0,0,0],target:[8,7.5,8,8,7.5],filled:new Array(5).fill(false),fields:{},analysis:null};
+const clampScore=(v)=>Math.max(0,Math.min(10,v));
+function toScore(v,fallback=0){
+  const n=Number(v);
+  return Number.isFinite(n)?clampScore(n):fallback;
+}
 
 // ── Skeleton dial radar ──
 const R=140,CX=150,CY=150,N=5,SCALE=10;const svg=document.getElementById('radar');
@@ -545,7 +550,11 @@ document.getElementById('start-btn').onclick=startSession;
 function reveal(a,showModal=true){
   stopRadarLoading();
   ST.done=true;ST.analysis=a;
-  SCORE_KEYS.forEach((k,i)=>{const s=a.scores?.[k]?.score;if(s!=null){ST.diagnosed[i]=s;ST.filled[i]=true;}});
+  SCORE_KEYS.forEach((k,i)=>{
+    const s=a.scores?.[k]?.score;
+    ST.diagnosed[i]=toScore(s,0);
+    ST.filled[i]=true;
+  });
   // perceived = diagnosed + perception lift when the founder over-estimated
   const gap=a.perception_gap||{};
   const lift=gap.gap_direction==='overestimate'?Math.min(2.2,(gap.gap_size||1)*0.8):(gap.gap_direction==='underestimate'?0:0.6);
@@ -570,7 +579,7 @@ function reveal(a,showModal=true){
   document.getElementById('rv-score-list').innerHTML=SCORE_KEYS.map((k,i)=>{
     const meta=SCORE_META[k];
     const sd=a.scores?.[k]||{};
-    const val=sd.score!=null?Number(sd.score).toFixed(2):'—';
+    const val=toScore(sd.score,0).toFixed(2);
     const floor=sd.floor!=null?Number(sd.floor).toFixed(2):'—';
     const floorMet=sd.floor_met===true?'OK':(sd.floor_met===false?'KO':'—');
     const calc=sd.calc||{};
@@ -581,7 +590,7 @@ function reveal(a,showModal=true){
       :'calcul indisponible';
     const leaves=Array.isArray(sd.leaves)?sd.leaves:[];
     const leafHtml=leaves.map(l=>{
-      const ls=l.score!=null?Number(l.score).toFixed(2):'—';
+      const ls=toScore(l.score,0).toFixed(2);
       const lw=l.weight!=null?Number(l.weight).toFixed(2):'0.00';
       return `<div class="rv-leaf"><span class="nm">${esc(l.label||l.criterion||'critère')}</span><span class="wt">${ls} × ${lw}</span></div>`;
     }).join('');
@@ -591,8 +600,8 @@ function reveal(a,showModal=true){
       <div class="rv-leaf-list">${leafHtml}</div>
     </div>`;
   }).join('');
-  const globals=SCORE_KEYS.map(k=>a.scores?.[k]?.score).filter(v=>v!=null).map(Number);
-  document.getElementById('rv-kpi-global').textContent=globals.length?(globals.reduce((x,y)=>x+y,0)/globals.length).toFixed(2)+'/10':'—';
+  const globals=SCORE_KEYS.map(k=>toScore(a.scores?.[k]?.score,0));
+  document.getElementById('rv-kpi-global').textContent=(globals.reduce((x,y)=>x+y,0)/globals.length).toFixed(2)+'/10';
 
   if(gap.divergence&&gap.gap_size){const d=gap.gap_direction;
     document.getElementById('rv-gap').style.display='flex';
