@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr" data-theme="dark">
 <head>
@@ -23,8 +24,7 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
 .poster{position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;padding:52px;border-right:1px solid var(--line);background:linear-gradient(160deg,var(--carbon),var(--void))}
 .poster::after{content:'';position:absolute;right:0;top:0;bottom:0;width:1px;background:linear-gradient(180deg,transparent,var(--line-gold) 25%,var(--line-gold) 75%,transparent)}
 .p-top{position:relative;display:flex;align-items:baseline}
-.p-top .w{font-family:var(--fd);font-weight:400;font-size:28px;letter-spacing:.06em;color:var(--ink)}
-.p-top .d{width:5px;height:5px;border-radius:50%;background:var(--gold);margin-left:4px;align-self:flex-end;margin-bottom:8px;box-shadow:0 0 8px var(--gold)}
+.p-top .logo{height:34px;width:auto;display:block;filter:drop-shadow(0 0 8px rgba(198,161,91,.35))}
 .p-mid{position:relative}
 .p-mid .eyebrow{font-family:var(--fm);font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin-bottom:20px}
 .p-mid h1{font-family:var(--fd);font-weight:300;font-size:42px;line-height:1.12;color:var(--ink);letter-spacing:.01em;max-width:13ch}
@@ -73,7 +73,7 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
 <body>
 <div class="stage">
   <aside class="poster">
-    <div class="p-top"><span class="w">Leadit</span><span class="d"></span></div>
+    <div class="p-top"><img class="logo" src="{% static 'img/Leadit-logo.png' %}" alt="Leadit"></div>
     <div class="p-mid">
       <svg class="dial" viewBox="0 0 200 200">
         <g fill="none" stroke="rgba(198,161,91,.22)" stroke-width=".8">
@@ -134,5 +134,4 @@ pwTog.onclick=()=>{const show=pw.type==='password';pw.type=show?'text':'password
 </script>
 </body>
 </html>
-
 

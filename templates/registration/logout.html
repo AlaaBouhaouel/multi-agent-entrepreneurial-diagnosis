@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +9,9 @@
 </head>
 <body>
   <main class="auth-card">
+    <header class="auth-header">
+      <img class="auth-logo" src="{% static 'img/Leadit-logo.png' %}" alt="Leadit">
+    </header>
     <h1>Logout</h1>
     <p>You are currently signed in.</p>
     <form method="post">

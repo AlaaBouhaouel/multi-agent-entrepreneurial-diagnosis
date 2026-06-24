@@ -19,6 +19,16 @@ body {
   padding: 20px;
 }
 
+.auth-header {
+  margin-bottom: 10px;
+}
+
+.auth-logo {
+  height: 28px;
+  width: auto;
+  display: block;
+}
+
 h1 {
   margin: 0 0 14px;
   font-size: 1.2rem;
