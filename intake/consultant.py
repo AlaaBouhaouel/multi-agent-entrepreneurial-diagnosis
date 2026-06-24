@@ -78,8 +78,10 @@ interview for an entrepreneurial assessment platform in Tunisia.
 ## LANGUAGE POLICY
 - You can speak French and Arabic.
 - Always mirror the founder's language from their latest message.
+- If the founder's latest message contains Arabic script, reply in Arabic.
 - If the founder mixes languages, you may reply in the same mixed style.
 - If there is no signal yet (opening turn), ask the first question in Arabic first, then French.
+- Do not revert to French once the founder is speaking Arabic, unless they switch.
 
 ## PRIMARY OBJECTIVE
 Establish the founder's maturity stage as quickly and accurately as possible.
@@ -272,6 +274,31 @@ def _recent_history(history: List[Dict[str, str]], n_turns: int = 4) -> str:
     return "\n".join(lines)
 
 
+def _detect_language_signal(last_user_message: Optional[str], history: List[Dict[str, str]]) -> str:
+    """
+    Infer user language signal for the next assistant turn.
+    Returns one of: arabic, french, mixed, unknown.
+    """
+    text = (last_user_message or "").strip()
+    if not text:
+        for m in reversed(history):
+            if m.get("role") == "user" and m.get("content"):
+                text = str(m["content"])
+                break
+    if not text:
+        return "unknown"
+
+    has_ar = bool(re.search(r"[\u0600-\u06FF]", text))
+    has_lat = bool(re.search(r"[A-Za-zÀ-ÖØ-öø-ÿ]", text))
+    if has_ar and has_lat:
+        return "mixed"
+    if has_ar:
+        return "arabic"
+    if has_lat:
+        return "french"
+    return "unknown"
+
+
 # -- Main function --------------------------------------------------------------
 
 def consult(
@@ -338,11 +365,22 @@ def consult(
             "puis enchaînez avec la vraie prochaine question. Ne bloquez pas sur la contradiction.\n"
         )
 
+    language_signal = _detect_language_signal(last_user_message, conversation_history)
+    language_block = (
+        "[CONTRAINTE DE LANGUE]\n"
+        f"- signal_detecte = {language_signal}\n"
+        "- Si signal_detecte = arabic: next_question et meta_response doivent être en arabe.\n"
+        "- Si signal_detecte = mixed: répondez en style mixte compatible avec la réponse du fondateur.\n"
+        "- Si signal_detecte = french: répondez en français.\n"
+        "- Si signal_detecte = unknown (ouverture): commencez en arabe puis français.\n"
+    )
+
     if last_user_message is None:
         user_content = (
             f"[Profil actuel]\n{profile_text}\n\n"
             f"{pii_block}\n\n"
             f"{stage_block}\n\n"
+            f"{language_block}\n"
             f"[CRITÈRES DE MATURITÉ EN ATTENTE — Phase 1 & 2]\n{maturity_fields}\n\n"
             f"[DONNÉES DE SCORING EN ATTENTE — Phase 3]\n{scoring_fields}\n\n"
             f"[DONNÉES FINANCIÈRES EN ATTENTE — Phase 4, stade = MVP uniquement]\n{financial_fields}\n\n"
@@ -358,6 +396,7 @@ def consult(
             f"[Profil actuel]\n{profile_text}\n\n"
             f"{pii_block}\n\n"
             f"{stage_block}\n\n"
+            f"{language_block}\n"
             f"[CRITÈRES DE MATURITÉ EN ATTENTE — Phase 1 & 2]\n{maturity_fields}\n\n"
             f"[DONNÉES DE SCORING EN ATTENTE — Phase 3]\n{scoring_fields}\n\n"
             f"[DONNÉES FINANCIÈRES EN ATTENTE — Phase 4, stade = MVP uniquement]\n{financial_fields}\n"

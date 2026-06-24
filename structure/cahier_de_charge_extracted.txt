@@ -1,0 +1,511 @@
+AINS HACKATHON
+Technical Specification
+AI for Entrepreneurship
+Unlocking the entrepreneurship ecosystem through AI
+Organised byPNUD, GEWEET, ODC, IEEE SECTION, APIIandAINS 4.0
+
+AINS Hackathon 2026 – Technical Specification
+Contents
+1 Global Requirements 3
+1.1 Context & Mission . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3
+1.2 Technical Freedom . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3
+1.3 What a Good Solution Must Achieve . . . . . . . . . . . . . . . . . . . . . . . 3
+1.4 Submission Requirements . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 3
+1.4.1 First Submission – Concept and Prototype Foundation . . . . . . . . . 4
+1.4.2 Final Submission . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 4
+1.5 Non-Functional Expectations . . . . . . . . . . . . . . . . . . . . . . . . . . . 4
+1.6 What Is Not Allowed . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 5
+2 Use Case – Intelligent Entrepreneurial Orientation Engine 6
+2.1 Problem . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+2.2 Vision . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+2.3 Feature 1 – Adaptive Diagnostic Engine . . . . . . . . . . . . . . . . . . . . . 6
+2.3.1 Problem Scope . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+2.3.2 Data & Domain Hints . . . . . . . . . . . . . . . . . . . . . . . . . . . 7
+2.3.3 Expected Capabilities . . . . . . . . . . . . . . . . . . . . . . . . . . . 7
+2.3.4 Acceptance Criteria . . . . . . . . . . . . . . . . . . . . . . . . . . . . 8
+2.3.5 Key Considerations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 8
+2.4 Feature 2 – Explainable Multi-Dimensional Scoring . . . . . . . . . . . . . . . 8
+2.4.1 Problem Scope . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 8
+2.4.2 Scoring Dimensions . . . . . . . . . . . . . . . . . . . . . . . . . . . . 8
+2.4.3 Expected Capabilities . . . . . . . . . . . . . . . . . . . . . . . . . . . 9
+2.4.4 Acceptance Criteria . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10
+2.4.5 Key Considerations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10
+2.5 Feature 3 – RAG-Grounded Roadmap & Resource Orientation . . . . . . . . 10
+2.5.1 Problem Scope . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 10
+2.5.2 Knowledge Base Construction . . . . . . . . . . . . . . . . . . . . . . . 10
+2.5.3 Expected Capabilities . . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+2.5.4 Acceptance Criteria . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12
+2.5.5 Key Considerations . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 12
+3 Evaluation & Judging Framework 13
+3.1 Judging Criteria . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 13
+3.2 Bonus Points . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 13
+2
+
+AINS Hackathon 2026 – Technical Specification
+1 Global Requirements
+1.1 Context & Mission
+The central mission is to build AI systems that unlock the entrepreneurship ecosystem –
+removing structural barriers across orientation, diagnosis, financing access, and business
+evaluation. All use cases in this brief share the same foundational mission:move beyond
+generic AI assistants and build systems that produce concrete, actionable outputs for real
+users.Whatever the technical approach, the output must demonstrably solve a real problem
+for an entrepreneur in Tunisia.
+Primary context:Entrepreneurship in Tunisia and the MENA region. Every solution,
+regardless of use case, must be designed with this population as its primary user.
+1.2 Technical Freedom
+There is no imposed technology stack. Teams are free to choose any combination of tools,
+frameworks, models, and databases that best serve their use case. The quality of the solution
+and its real-world impact matter – not which specific library or platform was used.
+Category
+Details
+AI / ML
+Any approach: LLMs, classical ML, embeddings, rule-based engines,
+hybrid systems, or any combination
+Data Stores
+Any database: SQL, NoSQL, vector DB, graph DB, document store,
+or a combination
+Frameworks
+Any programming language, ML framework, cloud service, or on-
+premise deployment
+Language (UI)
+French and/or Arabic strongly preferred for Tunisian user-facing com-
+ponents
+Data
+Public data, synthetic data, and realistic mock data are all acceptable
+and must be documented (Preferably provided by PNUD)
+1.3 What a Good Solution Must Achieve
+1. Real-world relevance.The system addresses a concrete, documented pain point for
+entrepreneurs in Tunisia – not a hypothetical scenario.
+2. Actionable outputs.The system produces recommendations, scores, structured diag-
+noses, roadmaps, or ranked resources – not raw data or open-ended conversation.
+3. Structural intelligence beyond retrieval.The system reasons over collected data to
+produce classification, scoring, and gap detection – not merely retrieval or summarisation.
+Rule-based logic, scoring models, and AI components must work in concert.
+4. Explainability.Every output is traceable. Users and judges can understand why the
+system produced a given result, what evidence supports it, and how each score was
+computed.
+5. Evaluation.The team defines at least one measurable evaluation metric and runs it on
+a test set, however small.
+1.4 Submission Requirements
+3
+
+AINS Hackathon 2026 – Technical Specification
+1.4.1 First Submission – Concept and Prototype Foundation
+The first submission is an early-stage deliverable demonstrating that the team has understood
+the problem, committed to a technical direction, and begun building.
+• Concept presentation– problem framing, proposed solution, target users, core AI
+mechanism, maturity taxonomy draft, and initial scoring dimensions; format is free (slide
+deck, document, or mockup); maximum 10 pages or slides
+• GitHub repository link– must contain at minimum: a structured README describing
+the chosen approach and scope, initial project structure or architecture sketch, and any
+early code, mockups, or design decisions, even if not yet functional
+First submission is not a finished prototype.Judges will evaluate clarity of problem
+understanding, credibility of the technical direction, and early evidence of execution – not
+completeness. A well-structured repository with a strong README and a clear scoring
+methodology draft is more valuable than a working but misdirected prototype.
+1.4.2 Final Submission
+Every team must submit the following on demo day:
+• Pitch deck– problem, solution, target users, value proposition, demo walkthrough,
+limitations, and next steps (maximum 15 slides)
+• Demo video– a recorded walkthrough of at least one end-to-end scenario demonstrating
+a core capability of the system (maximum 5 minutes); a live demo may be substituted
+during the presentation session
+• Architecture diagram– system components, data flow, AI pipeline, and key cross-
+module integration points
+• Knowledge base documentation– sources used, formats, key fields, ingestion pipeline
+description, and coverage notes
+• Scoring methodology document– criteria definitions, weights, aggregation logic, and
+justification for modelling decisions
+• Explainability layer– a mechanism or interface element showing why the system
+produced a specific output, including score breakdowns and diagnostic justifications
+• Evaluation report– metric(s) used, test protocol, and results (even on a small test set)
+• GitHub / GitLab repository– source code with a clear README and setup instruc-
+tions
+1.5 Non-Functional Expectations
+• Responsiveness.User-facing queries should return results within a few seconds for a
+realistic dataset size.
+• Reliability.The system handles missing, dirty, or incomplete data without crashing –
+document how edge cases are handled.
+• Privacy & Security.Any sensitive data (personal, financial, project-specific) must be
+masked or anonymised. State clearly what data is used and how it is protected.
+• Scalability mindset.Explain how the system would scale to more data, more users, or
+a broader geographic scope.
+4
+
+AINS Hackathon 2026 – Technical Specification
+1.6 What Is Not Allowed
+• Standalone chatbot or assistant projects – conversational features may exist as a secondary
+layer connected to the diagnostic and scoring engines, not as the core product. The system
+must do something structurally non-trivial beyond answering questions.
+• Solutions where the conversational assistantisthe core product. The diagnostic engine,
+explainable scoring module, and RAG-grounded recommendation layer are mandatory. A
+chat interface alone – even one backed by a strong LLM – does not meet the requirements.
+•Solutions without a clear, direct connection to entrepreneurship in the Tunisian context.
+• Reproducing an existing commercial product without a meaningful original contribution
+specific to this problem space.
+The goal is not to prescribe what you build – it is to ensure you build something real.
+The use case defines the problem space and the acceptance criteria. Design, architecture,
+product decisions, and technology choices are entirely yours.
+5
+
+AINS Hackathon 2026 – Technical Specification
+2 Use Case – Intelligent Entrepreneurial Orientation Engine
+An AI System for Project Maturity Diagnosis, Explainable Multi-Dimensional
+Scoring, and Personalised Roadmap Generation
+2.1 Problem
+Entrepreneurs at the early and growth stages of their journey face a compounding set of
+orientation failures. They lack visibility over their actual project maturity level, the critical
+steps they need to take, and the support devices that apply to their situation. The information
+that exists is fragmented, rarely personalised, and almost never contextualised to a specific
+project profile. A structural problem compounds this: entrepreneurs consistently overestimate
+or mischaracterise the maturity of their projects. A founder who believes they are ready for
+financing may have no validated business model. A project described as scalable may be
+entirely dependent on manual accompaniment. Without a system capable of detecting these
+gaps, orientation tools simply reflect and reinforce the entrepreneur’s existing – potentially
+inaccurate – self-perception. Existing tools – static guides, generic chatbots, and disconnected
+administrative portals – do not address this. They answer questions but do not diagnose.
+They provide information but do not produce a structured, evidence-based assessment of
+where a project actually stands and what it actually needs.
+2.2 Vision
+Build a unified AI platform that places the entrepreneur’s project profile at the centre
+and activates three intelligent capabilities around it: an adaptive diagnostic engine that
+classifies the project and surfaces gaps; an explainable scoring system that evaluates the
+project across multiple dimensions with transparent, weighted criteria; and a RAG-grounded
+recommendation layer that orients the entrepreneur toward real resources, programs, and
+actions drawn from a curated knowledge base. The integration is the differentiator. A
+diagnostic finding that identifies a missing market validation step should surface relevant
+support programs that address it. A scalability gap should connect to specific actions in the
+roadmap. The three modules must interact – not merely coexist.
+Architecture note:The three features below are mandatory. Teams are free to design
+the integration layer – shared project profile store, unified scoring API, cross-module
+recommendation logic – in any way that best serves the user experience. What will be
+evaluated is whether the modules genuinely interact, or merely coexist as independent
+panels.
+2.3 Feature 1 – Adaptive Diagnostic Engine
+2.3.1 Problem Scope
+Entrepreneurs are rarely able to accurately position themselves within their development
+cycle. They either overestimate their readiness – claiming to be at a financing stage without
+a validated model – or underestimate the structuring work already done. No existing tool
+in the Tunisian entrepreneurial ecosystem performs a dynamic, evidence-based diagnostic
+that combines structured data collection, adaptive questioning, maturity classification, and
+explicit gap detection between self-perception and project reality. The result is misaligned
+orientation: entrepreneurs are sent to programs they do not qualify for, offered resources
+that do not match their actual stage, and left without a clear picture of what is genuinely
+blocking their progress.
+6
+
+AINS Hackathon 2026 – Technical Specification
+2.3.2 Data & Domain Hints
+• Maturity stage taxonomy:A classification framework covering at minimum six stages,
+listed in chronological order: (1)Ideation, (2)Market Validation, (3)Structuration,
+(4)Fundraising(formerly pre-financing), (5)Launch Planning, and (6)Growth–
+with defined criteria per stage
+• Entrepreneur profile dimensions:Sector, legal form, team composition, revenue status,
+validation evidence, business model clarity, geographic location, prior accompaniment
+history
+• Gap detection cases:Synthetic or documented cases illustrating perception-reality
+divergence (e.g. self-assessed “financing-ready” vs. actual diagnostic output of “structura-
+tion”)
+• Blocker taxonomy:A structured catalogue of common entrepreneurial blockers mapped
+to maturity stages and domains (financial, legal, market, technical, organisational)
+Design note:The adaptive intake is not a static form. Questions must evolve in response
+to prior answers – a project flagged as operating in the agri-food sector should trigger
+sector-specific questions; a project claiming market traction should trigger validation
+evidence probes. The intelligence of the intake is part of what will be evaluated.
+2.3.3 Expected Capabilities
+• Adaptive structured intake– collect project and entrepreneur profile information
+through a dynamic questionnaire whose branching logic responds to prior inputs
+• Maturity classification– assign the project to a stage in a defined taxonomy, with
+evidence linking classification to collected data points
+• Gap detection– identify and surface discrepancies between the entrepreneur’s de-
+clared self-assessment and the system’s classification; flag specific dimensions causing the
+divergence
+• Blocker identification– detect and rank priority blockers based on collected data;
+distinguish between structural gaps and missing information
+• Diagnostic synthesis– produce a structured, readable diagnostic output – not a raw
+score – that the entrepreneur can act on
+• Contextual project memory– persist the project profile across sessions so that the
+diagnosis refines over time as new information is added
+7
+
+AINS Hackathon 2026 – Technical Specification
+2.3.4 Acceptance Criteria
+Criterion What to Demonstrate Priority
+Adaptive intake is real Branching logic produces meaningfully dif-
+ferent question sequences for at least 3 dis-
+tinct profiles
+Must
+Classification is traceable Every maturity stage assignment links to
+specific collected data points
+Must
+Gap detection works At least 3 demonstrated cases where self-
+assessed stage diverges from system diagno-
+sis
+Must
+End-to-end demo Intake to diagnostic output runs without
+manual intervention
+Must
+Blocker identification Priority blockers are ranked and linked to
+the maturity stage
+Should
+Handles ambiguity Incomplete profiles are handled gracefully;
+uncertainty is surfaced rather than hidden
+Should
+Persistent project context Re-entering the system with updated infor-
+mation refines the diagnosis
+Should
+Evaluation protocol At least one classification metric reported
+on a labelled test set
+Should
+2.3.5 Key Considerations
+• Classification accuracy matters.Misclassifying a project stage can send an en-
+trepreneur down the wrong path. Be explicit about confidence levels and edge cases.
+• Perception gap is a feature, not a side effect.The ability to detect divergence
+between self-assessment and actual diagnosis is a core differentiator – design for it explicitly,
+not as an afterthought.
+• Language.The intake should operate in French and/or Arabic to be accessible to the
+primary user population.
+• Scope discipline.Define a focused maturity taxonomy with clear, defensible criteria.
+Six stages with clear boundaries are more valuable than ten ambiguous ones.
+2.4 Feature 2 – Explainable Multi-Dimensional Scoring
+2.4.1 Problem Scope
+Evaluating an entrepreneurial project requires reasoning across multiple incommensurable
+dimensions simultaneously – market potential, commercial offer strength, innovation intensity,
+and scalability are not reducible to a single axis. An entrepreneur should be able to understand
+not justwhethertheir project scores well, butwhy– which specific criteria are driving each
+sub-score, what the gaps are, and what concrete actions would improve a given dimension.
+Without this granularity, a score is not a decision-support tool; it is a label.
+2.4.2 Scoring Dimensions
+Teams must implement at least the followingfivecomposite scores. Each composite score
+must decompose into explicit sub-scores with defined, weighted criteria.
+8
+
+AINS Hackathon 2026 – Technical Specification
+Score Sub-dimensions to cover
+Market Score Market share (combining addressable market size and competitive
+landscape analysis); customer validation evidence; revenue model
+clarity and viability
+Commercial Offer
+Score
+Clarity and differentiation of the value proposition; product/service
+maturity and readiness; pricing strategy coherence; alignment be-
+tween offer and identified customer needs
+Innovation Score Local novelty and differentiation; technology intensity; barrier to
+entry; degree of departure from existing market offerings
+Scalability Score Replicability without linear cost increase; manual accompaniment
+dependency; deployment cost structure; addressable market size
+and geographic potential
+Green Score Sustainability and environmental impact evaluation; project’s eco-
+logical viability and carbon footprint mitigation; alignment with
+Sustainable Development Goals (SDGs); resource efficiency and
+circular economy practices
+2.4.3 Expected Capabilities
+• Weighted criteria model– each sub-score is computed from a defined set of criteria
+with explicit weights; weights are documented and justifiable
+• Score decomposition– the composite score and each sub-score are surfaced to the user
+with per-criterion contributions
+• Natural-language justification– each score is accompanied by a plain-language expla-
+nation of what drove the result
+• Anomaly and inconsistency detection– the system flags profiles with contradictory
+or unsubstantiated signals (e.g. a project claiming high market traction with no validation
+evidence, or high scalability with heavy manual dependency)
+• Improvement guidance– for each score, the system identifies the highest-leverage gap
+and suggests a concrete action that would improve it
+• Score evolution– as the project profile is updated, scores recalculate and changes are
+tracked
+9
+
+AINS Hackathon 2026 – Technical Specification
+2.4.4 Acceptance Criteria
+Criterion What to Demonstrate Priority
+Five composite scores
+implemented
+Market, Commercial Offer, Innovation,
+Scalability, and Green scores all computed
+and displayed
+Must
+Sub-scores are explicit Each composite score decomposes into at
+least 3 sub-dimensions with visible contri-
+butions
+Must
+Criteria weights are
+documented
+Weighting methodology is described and
+defensible
+Must
+Natural-language justification Every score accompanied by a plain-
+language explanation
+Must
+Anomaly detection works At least 2 demonstrated cases of contradic-
+tory or unsubstantiated signals flagged
+Should
+Improvement guidance is
+specific
+Highest-leverage gap per score identified
+with a concrete suggested action
+Should
+Score evolution tracked Profile update triggers score recalculation
+with change highlighted
+Should
+Evaluation protocol Scoringconsistencyorinter-rateragreement
+measured on a test set
+Should
+2.4.5 Key Considerations
+• Explainability is not optional.A score without a traceable justification is not an
+explainable score – it is an opaque label. Every criterion contribution must be surfaced.
+• Scoring is modelling work.Defining the criteria, weights, and aggregation logic is a
+significant part of this feature. Teams must document their modelling decisions – this will
+be evaluated as part of Technical Depth.
+• Composite scores are not averages.The aggregation logic for each composite score
+should reflect the domain – a weak score on a fundamental dimension should not be
+masked by strong scores elsewhere.
+2.5 Feature 3 – RAG-Grounded Roadmap & Resource Orientation
+2.5.1 Problem Scope
+Once a project has been diagnosed and scored, the entrepreneur needs to knowwhat to do
+nextandwhere to go for support. Generic advice is not sufficient. The recommendations must
+be grounded in real, available resources – support programs, financing devices, administrative
+procedures, and ecosystem actors that actually exist in Tunisia – and they must be personalised
+to the specific diagnostic output and scoring profile of this entrepreneur. The core failure
+of existing orientation tools is that their recommendations are either generic (applicable to
+any entrepreneur) or untraced (plausible-sounding but not grounded in a real source). A
+recommendation that cannot be linked to a real program, document, or resource is not a
+recommendation – it is content generation.
+2.5.2 Knowledge Base Construction
+Teams must build and document a real knowledge base. This is core work, not optional
+enrichment. The knowledge base should cover at minimum:
+10
+
+AINS Hackathon 2026 – Technical Specification
+• Support and accompaniment programs– APII, BFPME, BTS, Startup Act mecha-
+nisms, ANPE resources, incubators and accelerators active in Tunisia
+• Financing programs– AFD programs, EU funding mechanisms, bank financing products,
+UNDP acceleration programs, international development fund mechanisms applicable in
+Tunisia
+• Administrative and regulatory resources– relevant procedures, forms, and institu-
+tional contacts for business creation and operation in Tunisia
+• Business guides and standards– certification pathways, quality frameworks, and
+reporting standards applicable in the MENA region
+• Ecosystem actors– mentors, networks, and professional associations relevant to en-
+trepreneurship in Tunisia
+Data note:No single clean dataset for this knowledge base exists. Part of the challenge
+is ingesting, structuring, and indexing heterogeneous documents – PDFs, web pages,
+structured lists – into a corpus that a retrieval pipeline can exploit. How this pipeline is
+designed and documented is part of what will be evaluated.
+2.5.3 Expected Capabilities
+• RAG pipeline– retrieve relevant resources from the knowledge base in response to the
+diagnostic profile and scoring output; every retrieved item must be traceable to its source
+• Personalised roadmap generation– produce an ordered, prioritised action plan
+grounded in the diagnostic output; actions at different time horizons (immediate, short-
+term, medium-term)
+• Resource matching– surface support programs, financing devices, and administrative
+steps relevant to the entrepreneur’s current stage and identified gaps
+• Cross-module coherence– a diagnostic gap should trigger retrieval of relevant support
+resources; a low sub-score should surface knowledge base items that address that dimension
+• Dashboard restitution– a visual interface presenting maturity level, composite scores
+with sub-score breakdowns, priority blockers, recommended next actions, and the roadmap
+• ‘Mon Parcours” tracking view– a persistent view where the entrepreneur sees their
+current stage, past recommendations, actions taken, and next steps; updates as the project
+profile evolves
+• Connected conversational assistant– a secondary conversational layer that responds
+to questions using the diagnostic results, scores, roadmap, and knowledge base as its
+grounding context; it does not operate independently of these structured outputs
+11
+
+AINS Hackathon 2026 – Technical Specification
+2.5.4 Acceptance Criteria
+Criterion What to Demonstrate Priority
+Knowledge base is real At least 30 documented, real resources
+structured and indexed
+Must
+Retrieval is traceable Every recommended resource cites at least
+one source in the knowledge base
+Must
+Roadmap is personalised Different diagnostic outputs produce mean-
+ingfully different roadmaps
+Must
+Cross-module coherence A diagnostic gap or low sub-score demon-
+strably triggers relevant knowledge base re-
+trieval
+Must
+Dashboard is functional Maturity level, scores, blockers, roadmap
+all visible in a single interface
+Must
+‘Mon Parcours” view exists Persistent tracking view updates with
+project profile evolution
+Should
+Conversational assistant is
+grounded
+Assistant responses reference diagnostic re-
+sults, scores, or knowledge base items – not
+generic LLM output
+Should
+Evaluation protocol Retrieval relevance or roadmap coherence
+metric reported on a test set
+Should
+Knowledge base is updatable New resources can be added without re-
+building the retrieval pipeline
+Could
+2.5.5 Key Considerations
+• Knowledge base construction is core work.Building a structured, diverse, and
+documented knowledge base of real Tunisian resources is a significant deliverable. Plan
+for it in your timeline – it cannot be improvised on demo day.
+• Recommendations must be grounded.A recommendation that cannot be traced to
+a specific item in the knowledge base or a specific output from the diagnostic engine is
+not acceptable. Hallucinated program names or invented administrative steps constitute a
+critical failure.
+• The assistant is a layer, not the product.The conversational assistant must be
+demonstrably connected to the structured outputs of the other two features. An assistant
+that answers questions from general knowledge, bypassing the diagnostic and knowledge
+base, does not meet the requirement.
+• Roadmap is not a list.A personalised roadmap has an order, a rationale, and time
+horizons. A flat list of generic actions is not a roadmap.
+12
+
+AINS Hackathon 2026 – Technical Specification
+3 Evaluation & Judging Framework
+3.1 Judging Criteria
+AllprojectswillbeevaluatedbyapanelofjudgesincludingPNUD/GEWEETrepresentatives,
+technical AI experts, and entrepreneurship practitioners. Scores are assigned across five
+dimensions:
+Dimension What Judges Look For Weight
+Real-world Impact Direct relevance to entrepreneurship in Tunisia,
+clarity of the value proposition, plausibility of real
+adoption
+25%
+Technical Depth Quality of the AI pipeline, intelligence of the di-
+agnostic and scoring engines, non-trivial problem
+solving beyond keyword search or chatbot inter-
+action
+25%
+Prototype Quality End-to-end demo works, handles realistic inputs,
+produces meaningful outputs, interface usable by
+a non-technical entrepreneur
+20%
+Explainability &
+Scoring Rigour
+Scores are traceable to weighted criteria; diag-
+nostic classifications are linked to evidence; users
+can understand why any output was produced;
+system communicates uncertainty
+15%
+Evaluation & Rigour Team defined and ran a real evaluation protocol
+with documented metrics, a test set, and reported
+results
+15%
+3.2 Bonus Points
+• Cross-module integration depth– the three mandatory features interact meaningfully
+around the shared project profile: diagnostic gaps trigger knowledge base retrieval; low
+sub-scores surface targeted roadmap actions; the assistant references structured outputs
+• Perception-reality gap detection is non-trivial– the system correctly flags at least
+3 cases where entrepreneur self-assessment diverges from the diagnostic output, with a
+clear explanation of the divergence
+• Real user validation– at least one real potential user (entrepreneur, support program
+officer, or investor) tested the prototype and provided documented feedback
+• Arabic language support– the system handles Arabic-language inputs or knowledge
+base documents meaningfully – not just translation
+• Original dataset contribution– the team built, curated, and documented a dataset
+that did not exist before: a structured Tunisian entrepreneurial support program catalogue,
+a maturity stage taxonomy with labelled examples, or a sector-specific knowledge base
+• Post-hackathon roadmap– a credible, specific plan for continuing development toward
+real adoption with the PNUD / GEWEET ecosystem
+13

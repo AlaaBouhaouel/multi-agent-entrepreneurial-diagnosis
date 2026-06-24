@@ -214,11 +214,22 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
 .rv-leaf .wt{font-family:var(--fm);color:var(--gold)}
 .rv-score-pass{color:var(--green)}
 .rv-score-fail{color:var(--red)}
+.detail-stack{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.detail-note{border:1px solid var(--line);border-radius:var(--r);padding:10px 11px;background:linear-gradient(180deg,var(--instrument),color-mix(in srgb,var(--instrument) 74%,var(--void)))}
+.detail-note .hd{font-family:var(--fm);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--t3);margin-bottom:6px}
+.detail-note .bd{font-size:12px;color:var(--t1);line-height:1.55}
+.detail-note .bd b{color:var(--ink);font-weight:500}
+.detail-note.detail-good{border-color:color-mix(in srgb,var(--green) 38%,var(--line));background:linear-gradient(180deg,color-mix(in srgb,var(--green) 7%,var(--instrument)),color-mix(in srgb,var(--instrument) 74%,var(--void)))}
+.detail-note.detail-warn{border-color:var(--line-gold);background:linear-gradient(180deg,color-mix(in srgb,var(--gold) 9%,var(--instrument)),color-mix(in srgb,var(--instrument) 76%,var(--void)))}
+.detail-note.detail-neutral{border-color:var(--line)}
+.detail-inline{margin-top:8px}
+.micro-div{font-family:var(--fm);font-size:8.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--t3);display:flex;align-items:center;gap:9px;margin:10px 0 7px}
+.micro-div::after{content:'';flex:1;height:1px;background:var(--line-2)}
 .loading-skel{position:relative;overflow:hidden}
 .loading-skel::after{content:'';position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);animation:shm 1.2s infinite}
 @keyframes shm{to{transform:translateX(100%)}}
 
-@media (max-width:920px){.app{grid-template-columns:1fr;grid-template-rows:64px 1fr 46vh}.conv{border-right:none;border-bottom:1px solid var(--line)}.conv::after{display:none}.panel{grid-row:3;padding:14px 14px 18px}.panel>div{flex-basis:100%}.rv-score-list,.diag-strip{grid-template-columns:1fr}.conv-scroll{padding:18px 16px}}
+@media (max-width:920px){.app{grid-template-columns:1fr;grid-template-rows:64px 1fr 46vh}.conv{border-right:none;border-bottom:1px solid var(--line)}.conv::after{display:none}.panel{grid-row:3;padding:14px 14px 18px}.panel>div{flex-basis:100%}.rv-score-list,.diag-strip{grid-template-columns:1fr}.conv-scroll{padding:18px 16px}.detail-note .bd{font-size:11.5px}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -274,6 +285,8 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
           <span class="leg"><i style="border-color:var(--ink)"></i>Diagnostiqué</span>
           <span class="leg"><i style="border-color:var(--t2);border-top-style:dotted"></i>Cible</span>
         </div>
+        <div class="micro-div">Interprétation</div>
+        <div class="detail-inline" id="rv-radar-note"></div>
       </div>
     </div>
 
@@ -306,15 +319,23 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
           </div>
           <div class="reveal-sub" id="rv-sec-scores">Scores par dimension · calcul pondéré</div>
           <div class="rv-score-list" id="rv-score-list"></div>
+          <div class="micro-div">Lecture décisionnelle</div>
+          <div class="detail-stack" id="rv-score-insights"></div>
           <div class="gap-line" id="rv-gap" style="display:none"><span class="ic">⚖</span><span class="tx" id="rv-gap-tx"></span></div>
           <div class="reveal-sub">Synthèse du consultant</div>
           <div class="synthesis" id="rv-synth">—</div>
+          <div class="micro-div">Note de pilotage</div>
+          <div class="detail-stack" id="rv-summary-note"></div>
           <div class="reveal-sub" id="rv-metrics-head" style="display:none">Métriques clés</div>
           <div class="metrics" id="rv-metrics"></div>
           <div class="reveal-sub" id="rv-blk-head" style="display:none">Points bloquants</div>
           <div class="blockers" id="rv-blk"></div>
+          <div class="micro-div">Priorisation</div>
+          <div class="detail-stack" id="rv-blocker-notes"></div>
           <div class="reveal-sub" id="rv-sec-roadmap">Roadmap</div>
           <div class="roadmap-list" id="rv-roadmap"><span class="roadmap-empty">Roadmap indisponible pour le moment.</span></div>
+          <div class="micro-div">Rationale roadmap</div>
+          <div class="detail-stack" id="rv-roadmap-notes"></div>
           <button class="btn sec" id="rv-roadmap-cta" type="button" style="margin-top:10px">Construire la roadmap</button>
         </div>
         <div class="reveal-foot">
@@ -393,6 +414,117 @@ function mdToHtml(md){
   return out.join('');
 }
 function cssval(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
+function prettyKey(s){return String(s||'').replace(/_/g,' ').replace(/\s+/g,' ').trim();}
+function titleize(s){return prettyKey(s).split(' ').filter(Boolean).map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');}
+function scoreBand(v){if(v>=8)return'très solide';if(v>=6)return'prometteur';if(v>=4)return'fragile';return'critique';}
+function noteCard(variant,head,body){
+  return `<div class="detail-note ${variant||'detail-neutral'}"><div class="hd">${esc(head)}</div><div class="bd">${body}</div></div>`;
+}
+function labelForDomain(k){
+  if(!k)return'priorité';
+  if(SCORE_META[k])return SCORE_META[k].label;
+  if(FIELD_LABELS[k])return FIELD_LABELS[k];
+  return titleize(k);
+}
+function roadCount(rm){
+  if(Array.isArray(rm))return rm.length;
+  if(rm&&typeof rm==='object')return Object.keys(rm).length;
+  if(typeof rm==='string'&&rm.trim())return 1;
+  return 0;
+}
+function composeRadarNote(a,key){
+  const conf=a.confidence||{};
+  const pct=conf.score!=null?Math.round((conf.score<=1?conf.score*100:conf.score)):null;
+  const pctTx=pct!=null?`${pct}%`:'—';
+  const gap=a.perception_gap||{};
+  let gapTx='Écart de perception non significatif.';
+  let variant='detail-neutral';
+  if(gap.divergence&&gap.gap_size){
+    const dir=gap.gap_direction==='overestimate'?'surestimation':'sous-estimation';
+    gapTx=`Écart détecté: <b>${dir}</b> de <b>${gap.gap_size}</b> niveau${gap.gap_size>1?'x':''}.`;
+    variant='detail-warn';
+  }else if(pct!=null&&pct>=75){
+    variant='detail-good';
+  }
+  return noteCard(
+    variant,
+    'Lecture du radar',
+    `Le tracé <b>diagnostiqué</b> reflète les preuves collectées, le tracé <b>perçu</b> la position déclarée, et la <b>cible</b> le seuil attendu. Confiance actuelle: <b>${pctTx}</b>. ${gapTx}`
+  );
+}
+function composeScoreInsights(a){
+  const cards=[];
+  const dims=SCORE_KEYS.map(k=>({key:k,label:SCORE_META[k].label,score:toScore(a.scores?.[k]?.score,0),floor:a.scores?.[k]?.floor,floorMet:a.scores?.[k]?.floor_met}));
+  const weak=[...dims].sort((x,y)=>x.score-y.score)[0];
+  const strong=[...dims].sort((x,y)=>y.score-x.score)[0];
+  const weakFloor=weak.floor!=null?` Seuil: <b>${Number(weak.floor).toFixed(2)}</b> (${weak.floorMet===true?'atteint':'à rattraper'}).`:'';
+  cards.push(noteCard(
+    weak.score<6?'detail-warn':'detail-neutral',
+    'Action prioritaire',
+    `Dimension la plus limitante: <b>${esc(weak.label)}</b> (${weak.score.toFixed(2)}/10, niveau ${scoreBand(weak.score)}).${weakFloor}`
+  ));
+  cards.push(noteCard(
+    strong.score>=7?'detail-good':'detail-neutral',
+    'Critères pondérés',
+    `Point le plus avancé: <b>${esc(strong.label)}</b> (${strong.score.toFixed(2)}/10). Chaque score reste une agrégation de <b>critères pondérés</b> et de règles de plancher.`
+  ));
+  cards.push(noteCard(
+    'detail-neutral',
+    'Justification traçable',
+    `La restitution affiche la formule pondérée et les contributions par critère pour garantir une lecture vérifiable des notes.`
+  ));
+  return cards.join('');
+}
+function composeBlockerNotes(a,nextDomain){
+  const blockers=Array.isArray(a.blockers)?a.blockers:[];
+  const failed=Array.isArray(a.failed_criteria)?a.failed_criteria:[];
+  const top=labelForDomain(blockers[0]||nextDomain);
+  const variant=failed.length||blockers.length?'detail-warn':'detail-good';
+  const b1=noteCard(
+    variant,
+    'Rationale de priorisation',
+    blockers.length
+      ?`Blocage dominant: <b>${esc(top)}</b>. Classement basé sur l’impact direct sur le passage au stade suivant.`
+      :`Aucun blocage majeur confirmé. Priorité actuelle: <b>consolider les preuves</b> sur les dimensions encore faibles.`
+  );
+  const b2=noteCard(
+    'detail-neutral',
+    'Impact et sévérité',
+    failed.length
+      ?`<b>${failed.length}</b> critère${failed.length>1?'s':''} non validé${failed.length>1?'s':''}. Traiter d’abord les critères à effet systémique (preuve marché, robustesse offre, faisabilité financière).`
+      :`Aucune incohérence critique détectée dans les critères remontés.`
+  );
+  return b1+b2;
+}
+function composeRoadmapNotes(a,nextDomain){
+  const n=roadCount(a.roadmap);
+  let hz='Horizon immédiat';
+  if(n>=4)hz='Horizon immédiat / court terme / moyen terme';
+  else if(n>=2)hz='Horizon immédiat / court terme';
+  const top=labelForDomain(nextDomain);
+  const c1=noteCard(
+    n?'detail-good':'detail-warn',
+    'Ordonnancement',
+    n
+      ?`Roadmap active avec <b>${n}</b> étape${n>1?'s':''}. ${hz}. La première priorité doit réduire le risque principal: <b>${esc(top)}</b>.`
+      :`Roadmap indisponible. Générer un plan ordonné par horizon pour matérialiser les prochaines actions.`
+  );
+  const c2=noteCard(
+    'detail-neutral',
+    'Source et confiance',
+    `Chaque recommandation doit rester <b>traçable</b> au diagnostic, aux scores et à la base de ressources (quand disponible).`
+  );
+  return c1+c2;
+}
+function composeSummaryNote(a,key,nextDomain){
+  const stage=STAGE_LABELS[key]||a.assigned_stage||'stade non défini';
+  const top=labelForDomain(nextDomain);
+  return noteCard(
+    'detail-neutral',
+    'Décision de pilotage',
+    `Projet positionné en <b>${esc(stage)}</b>. Décision recommandée: concentrer le prochain cycle d’exécution sur <b>${esc(top)}</b>, puis re-mesurer les scores pour valider la progression.`
+  );
+}
 
 const root=document.documentElement;
 document.getElementById('theme-toggle').onclick=()=>{root.dataset.theme=root.dataset.theme==='light'?'dark':'light';drawRadar();};
@@ -442,6 +574,11 @@ function startRadarLoading(){
   document.getElementById('rv-score-list').innerHTML='<div class="rv-score loading-skel" style="height:90px"></div><div class="rv-score loading-skel" style="height:90px"></div>';
   document.getElementById('rv-metrics').innerHTML='<div class="metric loading-skel" style="height:70px"></div><div class="metric loading-skel" style="height:70px"></div>';
   document.getElementById('rv-roadmap').innerHTML='<div class="roadmap-item loading-skel" style="height:56px"></div>';
+  document.getElementById('rv-radar-note').innerHTML='<div class="detail-note loading-skel" style="height:58px"></div>';
+  document.getElementById('rv-score-insights').innerHTML='<div class="detail-note loading-skel" style="height:64px"></div>';
+  document.getElementById('rv-summary-note').innerHTML='<div class="detail-note loading-skel" style="height:58px"></div>';
+  document.getElementById('rv-blocker-notes').innerHTML='<div class="detail-note loading-skel" style="height:58px"></div>';
+  document.getElementById('rv-roadmap-notes').innerHTML='<div class="detail-note loading-skel" style="height:58px"></div>';
   if(radarAnimId===null)radarAnimId=requestAnimationFrame(radarAnimStep);
 }
 function stopRadarLoading(){
@@ -602,14 +739,18 @@ function reveal(a,showModal=true){
   }).join('');
   const globals=SCORE_KEYS.map(k=>toScore(a.scores?.[k]?.score,0));
   document.getElementById('rv-kpi-global').textContent=(globals.reduce((x,y)=>x+y,0)/globals.length).toFixed(2)+'/10';
+  document.getElementById('rv-radar-note').innerHTML=composeRadarNote(a,key);
+  document.getElementById('rv-score-insights').innerHTML=composeScoreInsights(a);
 
   if(gap.divergence&&gap.gap_size){const d=gap.gap_direction;
     document.getElementById('rv-gap').style.display='flex';
     document.getElementById('rv-gap-tx').innerHTML=d==='overestimate'
       ?`Vous surestimez votre avancement de <b>${gap.gap_size}</b> niveau${gap.gap_size>1?'x':''} — le diagnostic indique « <b>${esc(STAGE_LABELS[key]||a.assigned_stage)}</b> ».`
       :`Vous sous-estimez votre avancement de <b>${gap.gap_size}</b> niveau${gap.gap_size>1?'x':''}. La feuille de route capitalise sur cette avance.`;}
+  else{document.getElementById('rv-gap').style.display='none';}
 
   document.getElementById('rv-synth').innerHTML=a.presentation?mdToHtml(a.presentation):'Diagnostic établi à partir de votre profil.';
+  document.getElementById('rv-summary-note').innerHTML=composeSummaryNote(a,key,nextDomain);
 
   // Key metrics strip (from derive_all_metrics)
   const m=a.metrics||{};
@@ -629,6 +770,11 @@ function reveal(a,showModal=true){
     document.getElementById('rv-blk').innerHTML=fc.slice(0,6).map(f=>{
       const confirmed=f.value===false;
       return `<div class="blk"><span class="x ${confirmed?'':'warn'}">${confirmed?'✕':'○'}</span><span>${esc(f.criterion||'')}</span><span class="stg">${esc(STAGE_LABELS[sKey(f.stage)]||f.stage||'')}</span></div>`;}).join('');}
+  else{
+    document.getElementById('rv-blk-head').style.display='none';
+    document.getElementById('rv-blk').innerHTML='';
+  }
+  document.getElementById('rv-blocker-notes').innerHTML=composeBlockerNotes(a,nextDomain);
   const rm=a.roadmap;
   const rmEl=document.getElementById('rv-roadmap');
   if(Array.isArray(rm)&&rm.length){
@@ -645,6 +791,7 @@ function reveal(a,showModal=true){
   }else{
     rmEl.innerHTML='<span class="roadmap-empty">Roadmap indisponible pour le moment.</span>';
   }
+  document.getElementById('rv-roadmap-notes').innerHTML=composeRoadmapNotes(a,nextDomain);
 
   const revealEl=document.getElementById('reveal');
   if(showModal)setTimeout(()=>revealEl.classList.add('show'),350);
