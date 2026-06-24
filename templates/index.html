@@ -195,6 +195,10 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
 .roadmap-list{display:flex;flex-direction:column;gap:7px}
 .roadmap-item{border:1px solid var(--line);border-radius:var(--r);padding:10px 11px;background:linear-gradient(180deg,var(--instrument),color-mix(in srgb,var(--instrument) 74%,var(--void)));font-size:12px;color:var(--t1);line-height:1.55}
 .roadmap-item .rk{font-family:var(--fm);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:4px}
+.roadmap-item b{color:var(--ink);font-weight:500}
+.roadmap-why{margin-top:5px;font-size:11.5px;font-weight:300;color:var(--t2);line-height:1.5}
+.roadmap-src{display:inline-block;margin-top:7px;font-family:var(--fm);font-size:9.5px;letter-spacing:.04em;color:var(--gold);text-decoration:none;border-bottom:1px solid var(--line-gold)}
+.roadmap-src:hover{color:var(--gold-bright)}
 .roadmap-empty{font-size:12px;font-style:italic;color:var(--t3)}
 .reveal-foot{display:flex;gap:11px;padding:0 36px 32px}
 .btn{flex:1;padding:13px;border-radius:30px;font-family:var(--fm);font-size:11px;letter-spacing:.12em;text-transform:uppercase;transition:all var(--tf)}
@@ -357,6 +361,7 @@ button{cursor:pointer;font-family:inherit;border:none;background:none;color:inhe
 // ── Constants ──────────────────────────────────────────────────────────────
 const CSRF=()=>{const m=document.cookie.match(/csrftoken=([^;]+)/);return m?m[1]:'';};
 const BOOTSTRAP=(()=>{const el=document.getElementById('index-bootstrap');if(!el)return {};try{return JSON.parse(el.textContent);}catch{return {};}})();
+let PROJECT_ID=(BOOTSTRAP.analysis&&BOOTSTRAP.analysis.project_id)||null;
 const STAGE_LABELS={IDEATION:'Idéation',MARKET_VALIDATION:'Validation marché',STRUCTURATION:'Structuration',FUNDRAISING:'Levée de fonds',LAUNCH_PLANNING:'Lancement',GROWTH:'Croissance'};
 const STAGE_ORDER=['IDEATION','MARKET_VALIDATION','STRUCTURATION','FUNDRAISING','LAUNCH_PLANNING','GROWTH'];
 const SCORE_META={market:{label:'Santé financière',ic:'◈'},commercial:{label:'Offre commerciale',ic:'◇'},innovation:{label:'Innovation',ic:'◆'},scalability:{label:'Scalabilité',ic:'△'},green:{label:'Impact vert',ic:'◉'}};
@@ -427,7 +432,10 @@ function labelForDomain(k){
 }
 function roadCount(rm){
   if(Array.isArray(rm))return rm.length;
-  if(rm&&typeof rm==='object')return Object.keys(rm).length;
+  if(rm&&typeof rm==='object'){
+    if(Array.isArray(rm.roadmap_flat))return rm.roadmap_flat.length;
+    return Object.keys(rm).length;
+  }
   if(typeof rm==='string'&&rm.trim())return 1;
   return 0;
 }
@@ -774,9 +782,12 @@ function reveal(a,showModal=true){
     document.getElementById('rv-blk').innerHTML='';
   }
   document.getElementById('rv-blocker-notes').innerHTML=composeBlockerNotes(a,nextDomain);
+  if(a.project_id)PROJECT_ID=a.project_id;
   const rm=a.roadmap;
   const rmEl=document.getElementById('rv-roadmap');
-  if(Array.isArray(rm)&&rm.length){
+  if(rm&&typeof rm==='object'&&!Array.isArray(rm)&&rm.roadmap_by_horizon){
+    renderRoadmapOutput(rm);
+  }else if(Array.isArray(rm)&&rm.length){
     rmEl.innerHTML=rm.map((item,idx)=>`<div class="roadmap-item"><span class="rk">Étape ${idx+1}</span>${esc(item)}</div>`).join('');
   }else if(rm&&typeof rm==='object'){
     const entries=Object.entries(rm);
@@ -790,6 +801,10 @@ function reveal(a,showModal=true){
   }else{
     rmEl.innerHTML='<span class="roadmap-empty">Roadmap indisponible pour le moment.</span>';
   }
+  const hasRoadmap=rm&&typeof rm==='object'&&rm.roadmap_by_horizon;
+  const cta=document.getElementById('rv-roadmap-cta');
+  cta.textContent=hasRoadmap?'Régénérer la roadmap':'Construire la roadmap';
+  cta.style.display=PROJECT_ID?'inline-flex':'none';
   document.getElementById('rv-roadmap-notes').innerHTML=composeRoadmapNotes(a,nextDomain);
 
   const revealEl=document.getElementById('reveal');
@@ -801,7 +816,49 @@ document.getElementById('rv-continue').onclick=()=>{
   input.placeholder='Posez une question sur votre diagnostic…';setInputEnabled(true);
 };
 document.getElementById('rv-restart').onclick=()=>location.reload();
-document.getElementById('rv-roadmap-cta').onclick=()=>addMsg('Roadmap non générée pour ce projet. Lancez la génération roadmap pour remplir cette section.','bot');
+function renderRoadmapOutput(out){
+  const rmEl=document.getElementById('rv-roadmap');
+  if(!out||typeof out!=='object'){rmEl.innerHTML='<span class="roadmap-empty">Roadmap indisponible pour le moment.</span>';return;}
+  const byH=out.roadmap_by_horizon||{};
+  const horizons=['immediate','short_term','medium_term'];
+  let html='';let count=0;
+  horizons.forEach(h=>{
+    const block=byH[h];
+    if(!block||!Array.isArray(block.actions)||!block.actions.length)return;
+    block.actions.forEach(act=>{
+      count++;
+      const src=act.source_url
+        ?`<a class="roadmap-src" href="${esc(act.source_url)}" target="_blank" rel="noopener">${esc(act.resource_name||act.provider||'Source')} ↗</a>`
+        :'';
+      html+=`<div class="roadmap-item"><span class="rk">${esc(block.label_fr||h)} · #${act.order||count}</span><b>${esc(act.title||'Action')}</b>${act.rationale_fr?`<div class="roadmap-why">${esc(act.rationale_fr)}</div>`:''}${src}</div>`;
+    });
+  });
+  if(!count){
+    const um=Array.isArray(out.unmatched_gaps)?out.unmatched_gaps:[];
+    html=um.length
+      ?um.map(u=>`<div class="roadmap-item"><span class="rk">Non couvert</span>${esc(u.message_fr||u.domain||'')}</div>`).join('')
+      :'<span class="roadmap-empty">Aucune action générée pour ce profil.</span>';
+  }
+  rmEl.innerHTML=html;
+}
+async function buildRoadmap(){
+  if(!PROJECT_ID){addMsg('Aucun projet enregistré : terminez d\'abord le diagnostic.','bot');return;}
+  const cta=document.getElementById('rv-roadmap-cta');
+  const prevLabel=cta.textContent;
+  cta.disabled=true;cta.textContent='Génération en cours…';
+  document.getElementById('rv-roadmap').innerHTML='<div class="roadmap-item loading-skel" style="height:56px"></div><div class="roadmap-item loading-skel" style="height:56px"></div>';
+  try{
+    const r=await post(`/roadmap/generate/${PROJECT_ID}/`,{});
+    const out=r.output||r;
+    renderRoadmapOutput(out);
+    if(ST.analysis)ST.analysis.roadmap=out;
+    cta.textContent='Régénérer la roadmap';
+  }catch(e){
+    document.getElementById('rv-roadmap').innerHTML='<span class="roadmap-empty">Échec de la génération : '+esc(e.message||'erreur')+'</span>';
+    cta.textContent=prevLabel;
+  }finally{cta.disabled=false;}
+}
+document.getElementById('rv-roadmap-cta').onclick=buildRoadmap;
 document.getElementById('fields-toggle').onclick=()=>{ST.fieldsExpanded=!ST.fieldsExpanded;renderFields();};
 
 // ── Grounded Q&A (post-diagnosis) ──

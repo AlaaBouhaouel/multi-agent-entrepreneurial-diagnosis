@@ -151,7 +151,8 @@ def _write_analysis_logs(project, analysis: dict) -> None:
         )
 
 
-def _analysis_payload_for_frontend(analysis: dict, presentation: str = "", roadmap_data=None) -> dict:
+def _analysis_payload_for_frontend(analysis: dict, presentation: str = "", roadmap_data=None,
+                                   project_id=None) -> dict:
     def _score_payload(res: dict) -> dict:
         leaves_in = res.get('leaves') or []
         leaves_out = []
@@ -197,6 +198,7 @@ def _analysis_payload_for_frontend(analysis: dict, presentation: str = "", roadm
     metrics_in = analysis.get('metrics', {})
     return {
         'presentation':   presentation,
+        'project_id':     project_id,
         'assigned_stage': analysis.get('assigned_stage'),
         'stopped_at':     analysis.get('stopped_at'),
         'confidence':     analysis.get('confidence'),
@@ -290,6 +292,7 @@ def index(request):
             analysis,
             presentation=_first_assistant_message(analyst_history),
             roadmap_data=roadmap_data,
+            project_id=project_id,
         )
 
     bootstrap_data = {
@@ -440,7 +443,12 @@ def analysis_start(request):
     except Exception:
         pass  # DB failure must not break the response
 
-    return JsonResponse(_analysis_payload_for_frontend(analysis, presentation=presentation, roadmap_data=roadmap_data))
+    return JsonResponse(_analysis_payload_for_frontend(
+        analysis,
+        presentation=presentation,
+        roadmap_data=roadmap_data,
+        project_id=request.session.get('project_db_id'),
+    ))
 
 
 @require_POST
