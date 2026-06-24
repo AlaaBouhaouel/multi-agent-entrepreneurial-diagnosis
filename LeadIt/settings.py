@@ -162,7 +162,10 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 MB — profile + history can be lar
 
 # Roadmap (Feature 3)
 ROADMAP_KB_PATH = os.path.join(BASE_DIR, 'kb', 'KB_merged.json')
-ROADMAP_EMBEDDER = 'auto'                 # 'auto' | 'bge' | 'hashing'
+ROADMAP_EMBEDDER = os.environ.get(
+    'ROADMAP_EMBEDDER',
+    'hashing' if ON_RAILWAY else 'auto'
+)  # 'auto' | 'bge' | 'hashing'
 ROADMAP_RAG_MODEL = 'claude-opus-4-8'     # RAG synthesizer (presenter stays on Sonnet 4.6)
 ANTHROPIC_API_KEY = os.environ.get('ANTHROPIC_API_KEY')  # shared by RAG + presenter
 

@@ -24,6 +24,7 @@ Notes
 from __future__ import annotations
 
 import json
+import logging
 import os
 from functools import lru_cache
 
@@ -41,6 +42,8 @@ from .retrieval import KBRetriever
 from .engine import RoadmapEngine
 from .llm import RoadmapLLM
 from .assistant import GroundedAssistant, build_assistant_context
+
+logger = logging.getLogger(__name__)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -77,22 +80,32 @@ def generate_roadmap(request, project_id: int):
     except ProjectProfile.DoesNotExist:
         raise Http404("Project not found")
 
-    # Feature 1 + 2 (these append their own logs)
-    diagnosis_result = diagnose_project(profile)
-    diagnosis = diagnosis_result["metadata"]
-    scoring = score_project(profile)
+    try:
+        # Feature 1 + 2 (these append their own logs)
+        diagnosis_result = diagnose_project(profile)
+        diagnosis = diagnosis_result["metadata"]
+        scoring = score_project(profile)
 
-    # Feature 3
-    engine = _get_engine()
-    result = engine.generate(profile, diagnosis, scoring)
+        # Feature 3
+        engine = _get_engine()
+        result = engine.generate(profile, diagnosis, scoring)
+    except Exception as exc:
+        logger.exception("generate_roadmap failure")
+        return JsonResponse(
+            {"error": f"roadmap generation failed: {exc.__class__.__name__}: {exc}"},
+            status=500,
+        )
 
     # Append to the project's immutable log (author='roadmap')
-    ProfileLog.objects.create(
-        project=profile,
-        author="roadmap",
-        output_type="roadmap_result",
-        metadata=result["output"],
-    )
+    try:
+        ProfileLog.objects.create(
+            project=profile,
+            author="roadmap",
+            output_type="roadmap_result",
+            metadata=result["output"],
+        )
+    except Exception:
+        logger.exception("roadmap log write failure")
 
     # Persist the clean, self-contained snapshot on the profile. The grounded
     # presenter reads its whole context from here (no ProfileLog query, no
@@ -103,8 +116,11 @@ def generate_roadmap(request, project_id: int):
         "roadmap":      result["output"],     # engine output (already clean JSON)
         "generated_at": result["timestamp"],
     }
-    profile.roadmap = snapshot
-    profile.save(update_fields=["roadmap", "updated_at"])
+    try:
+        profile.roadmap = snapshot
+        profile.save(update_fields=["roadmap", "updated_at"])
+    except Exception:
+        logger.exception("roadmap snapshot save failure")
 
     return JsonResponse(result, json_dumps_params={"ensure_ascii": False})
 
@@ -140,5 +156,12 @@ def assistant(request, project_id: int):
     assistant_client = GroundedAssistant(
         context, api_key=getattr(settings, "ANTHROPIC_API_KEY", None),
     )
-    reply = assistant_client.ask(messages)
+    try:
+        reply = assistant_client.ask(messages)
+    except Exception as exc:
+        logger.exception("roadmap assistant failure")
+        return JsonResponse(
+            {"error": f"roadmap assistant failed: {exc.__class__.__name__}: {exc}"},
+            status=500,
+        )
     return JsonResponse(reply, json_dumps_params={"ensure_ascii": False})

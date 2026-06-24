@@ -89,7 +89,11 @@ class RoadmapLLM:
         try:
             import os
             from anthropic import Anthropic
-            self._client = Anthropic(api_key=api_key or os.environ.get("ANTHROPIC_API_KEY"))
+            self._client = Anthropic(
+                api_key=api_key or os.environ.get("ANTHROPIC_API_KEY"),
+                timeout=20.0,
+                max_retries=0,
+            )
         except Exception:
             self._client = None
 
