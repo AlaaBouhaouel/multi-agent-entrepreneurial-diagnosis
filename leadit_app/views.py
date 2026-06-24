@@ -52,7 +52,8 @@ def _get_client():
             raise RuntimeError(
                 'Anthropic API key missing. Set API_KEY_CLAUDE or ANTHROPIC_API_KEY in your .env file.'
             )
-        _anthropic_client = Anthropic(api_key=api_key)
+        # Keep API calls under typical reverse-proxy limits and avoid long hangs.
+        _anthropic_client = Anthropic(api_key=api_key, timeout=20.0, max_retries=0)
     return _anthropic_client
 
 
@@ -65,13 +66,17 @@ def call_llm(messages):
             system = m['content']
         else:
             chat.append(m)
-    resp = client.messages.create(
-        model='claude-sonnet-4-6',
-        max_tokens=2048,
-        system=system,
-        messages=chat,
-    )
-    return resp.content[0].text
+    try:
+        resp = client.messages.create(
+            model='claude-sonnet-4-6',
+            max_tokens=2048,
+            system=system,
+            messages=chat,
+        )
+        return resp.content[0].text
+    except Exception as exc:
+        logger.exception("call_llm failure")
+        raise RuntimeError(f"LLM request failed: {exc.__class__.__name__}: {exc}") from exc
 
 
 # ── DB helpers ─────────────────────────────────────────────────────────────────
@@ -423,23 +428,30 @@ def analysis_start(request):
     except Exception as exc:
         return JsonResponse({'error': str(exc)}, status=500)
 
-    try:
-        analyst = AnalystSession(
-            profile,
-            analysis,
-            call_llm,
-            project_name=request.session.get('intake_project_name', 'Projet'),
-        )
-        presentation = analyst.present()
-    except Exception as exc:
-        logger.exception("analysis_start presentation failure")
-        return JsonResponse(
-            {'error': f'analysis presentation failed: {exc.__class__.__name__}: {exc}'},
-            status=500
-        )
+    presentation = ""
+    analyst_history = []
+    # Keep /api/analysis/start fast and resilient: by default we skip the
+    # synchronous LLM presentation to avoid request timeouts under Gunicorn.
+    llm_presentation_enabled = os.getenv('ANALYSIS_PRESENTATION_ON_START', 'false').lower() == 'true'
+    if llm_presentation_enabled:
+        try:
+            analyst = AnalystSession(
+                profile,
+                analysis,
+                call_llm,
+                project_name=request.session.get('intake_project_name', 'Projet'),
+            )
+            presentation = analyst.present()
+            analyst_history = analyst._history
+        except Exception as exc:
+            logger.exception("analysis_start presentation failure")
+            presentation = (
+                "Le diagnostic chiffré est prêt, mais la présentation textuelle est "
+                "temporairement indisponible. Vous pouvez quand même consulter les scores."
+            )
 
     request.session['analysis_result'] = analysis
-    request.session['analyst_history'] = analyst._history
+    request.session['analyst_history'] = analyst_history
 
     roadmap_data = None
     # Persist final profile state + write all engine logs.
@@ -481,7 +493,14 @@ def analysis_ask(request):
     )
     analyst._history = request.session.get('analyst_history', [])
 
-    answer = analyst.ask(question)
+    try:
+        answer = analyst.ask(question)
+    except Exception as exc:
+        logger.exception("analysis_ask failure")
+        return JsonResponse(
+            {'error': f'analysis follow-up failed: {exc.__class__.__name__}: {exc}'},
+            status=500
+        )
     request.session['analyst_history'] = analyst._history
 
     return JsonResponse({'answer': answer})
